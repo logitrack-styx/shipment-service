@@ -127,7 +127,7 @@ def main():
     inactive=shipment()
     check('S3-15 inactive Courier conflict',call('PUT','/api/v1/shipments/'+inactive['id']+'/repartidor',admin,assign),409)
     check('set Courier active',call('PATCH','/api/v1/couriers/'+courier_id+'/estado',admin,{'estado':'ACTIVO'}),200)
-    concurrent=shipment(); concurrent_path='/api/v1/shipments/'+concurrent['id']+'/repartidor'
+    concurrent_envio=shipment(); concurrent_path='/api/v1/shipments/'+concurrent_envio['id']+'/repartidor'
     with concurrent.futures.ThreadPoolExecutor(2) as pool:
         statuses=sorted(pool.map(lambda _:call('PUT',concurrent_path,admin,assign)[0],range(2)))
     assert statuses==[200,409], statuses
@@ -162,6 +162,11 @@ def main():
         if result[0]==200: break
         time.sleep(2)
     check('S3-20 Courier recovery assignment',result,200)
+    for attempt in range(45):
+        gateway_recovery=call('GET','/api/v1/couriers',admin)
+        if gateway_recovery[0]==200:break
+        time.sleep(2)
+    check('S3-20 Gateway recovery discovery convergence',gateway_recovery,200)
     check('S3-01 Config environment',call('GET','/shipment-service/default',base='http://localhost:8888'),200,
           lambda b:b.get('name')=='shipment-service')
     check('S3-02 Eureka UP',call('GET','/eureka/apps',headers={'Accept':'application/json'},base='http://localhost:8065'),200,

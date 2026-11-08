@@ -1,0 +1,44 @@
+[
+  {
+    "service": "config-server",
+    "image": "logitrack/config-server:s3-f80b03c3e4d5",
+    "source_sha256": "f80b03c3e4d52a9b919eab01bbc6476e1e948aff5f6d2cde9ef0948f6fa8fca3",
+    "base_commit": "1bddb3cd910861fc9105df20d6e8837d4dc7fa41",
+    "source_state": "source snapshot; source_sha256 identifies exact build inputs"
+  },
+  {
+    "service": "eureka-server",
+    "image": "logitrack/eureka-server:s3-b32e8f3bf0e1",
+    "source_sha256": "b32e8f3bf0e175546269a834eef1b1ca6012522996294132902be35738bed76a",
+    "base_commit": "373f085c04a6c89229e5e498a90ae0948ecea8cf",
+    "source_state": "source snapshot; source_sha256 identifies exact build inputs"
+  },
+  {
+    "service": "security-service",
+    "image": "logitrack/security-service:s3-0f7e13b8a291",
+    "source_sha256": "0f7e13b8a2911db7f9348c5fbd80bde305ac888a7149727e437af5a5dc8bf5f6",
+    "base_commit": "6235792b81223fa94d764236b547e475ff96704d",
+    "source_state": "source snapshot; source_sha256 identifies exact build inputs"
+  },
+  {
+    "service": "courier-service",
+    "image": "logitrack/courier-service:s3-33b6bf83a787",
+    "source_sha256": "33b6bf83a7872741151c6570bff9abb82ddb9763d4e53c811d217562915300ee",
+    "base_commit": "36ed75bd9199fef7c119d8b735afdc4962a3cf32",
+    "source_state": "source snapshot; source_sha256 identifies exact build inputs"
+  },
+  {
+    "service": "shipment-service",
+    "image": "logitrack/shipment-service:s3-ca2773902ef2",
+    "source_sha256": "ca2773902ef2a82e92a753a5c2d3aec4bb3033357bfd80c97fe18a396f7b62a1",
+    "base_commit": "975169123072d4432ddae0b4542c5650d3d6d69c",
+    "source_state": "source snapshot; source_sha256 identifies exact build inputs"
+  },
+  {
+    "service": "api-gateway",
+    "image": "logitrack/api-gateway:s3-a3451c6d22e0",
+    "source_sha256": "a3451c6d22e0916c7e68da34a8477152f37fe9472772a29fc080ec1d26e044ad",
+    "base_commit": "104694192ee653ee36ddba78986ec3122343a12a",
+    "source_state": "source snapshot; source_sha256 identifies exact build inputs"
+  }
+]

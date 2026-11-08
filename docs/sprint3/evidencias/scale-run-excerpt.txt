@@ -1,0 +1,1 @@
+Scale fixture rows: 10017 ; HTTP page rows: 100

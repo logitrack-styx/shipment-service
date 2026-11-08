@@ -1,0 +1,115 @@
+{
+  "runner": "Node HTTP runner executing original Postman-compatible prerequest and test scripts",
+  "collection": "LogiTrack Sprint 3 - cierre verificado",
+  "variables": [
+    "aBaseUrl",
+    "aAdminUsername",
+    "aAdminPassword",
+    "aClientUsername",
+    "aClientEmail",
+    "aClientPassword",
+    "aTokenAdmin",
+    "aTokenCliente",
+    "aTamperedToken",
+    "aClientId",
+    "aDemoShipmentId",
+    "aDemoCourierId"
+  ],
+  "requests": 7,
+  "request_results": [
+    {
+      "name": "A-01 | Login ADMIN - JWT RS256 (200)",
+      "status": 200
+    },
+    {
+      "name": "PREP-01 | Crear CLIENTE temporal (201)",
+      "status": 201
+    },
+    {
+      "name": "PREP-02 | Login CLIENTE temporal (200)",
+      "status": 200
+    },
+    {
+      "name": "A-02 | Sin Authorization en ruta protegida (401)",
+      "status": 401
+    },
+    {
+      "name": "A-03 | JWT ADMIN con firma alterada (401)",
+      "status": 401
+    },
+    {
+      "name": "A-04 | CLIENTE intenta asignación ADMIN (403)",
+      "status": 403
+    },
+    {
+      "name": "A-05 | ADMIN consulta lista Courier por Gateway (200)",
+      "status": 200
+    }
+  ],
+  "assertions": [
+    {
+      "assertion": "A-01 | HTTP 200",
+      "passed": true
+    },
+    {
+      "assertion": "A-01 | tokenType es Bearer",
+      "passed": true
+    },
+    {
+      "assertion": "A-01 | accessToken tiene formato JWT",
+      "passed": true
+    },
+    {
+      "assertion": "PREP-01 | HTTP 201",
+      "passed": true
+    },
+    {
+      "assertion": "PREP-01 | Rol CLIENTE forzado por el registro público",
+      "passed": true
+    },
+    {
+      "assertion": "PREP-01 | Username creado coincide",
+      "passed": true
+    },
+    {
+      "assertion": "PREP-02 | HTTP 200",
+      "passed": true
+    },
+    {
+      "assertion": "PREP-02 | Token CLIENTE válido en respuesta",
+      "passed": true
+    },
+    {
+      "assertion": "A-02 | HTTP 401 por token ausente",
+      "passed": true
+    },
+    {
+      "assertion": "A-02 | JSON de Gateway (401)",
+      "passed": true
+    },
+    {
+      "assertion": "A-03 | HTTP 401 por firma adulterada",
+      "passed": true
+    },
+    {
+      "assertion": "A-03 | JSON de Gateway (401)",
+      "passed": true
+    },
+    {
+      "assertion": "A-04 | HTTP 403 por rol CLIENTE",
+      "passed": true
+    },
+    {
+      "assertion": "A-04 | Respuesta 403 del manejador de Gateway",
+      "passed": true
+    },
+    {
+      "assertion": "A-05 | HTTP 200 como ADMIN",
+      "passed": true
+    },
+    {
+      "assertion": "A-05 | Courier devuelve JSON lista",
+      "passed": true
+    }
+  ]
+}

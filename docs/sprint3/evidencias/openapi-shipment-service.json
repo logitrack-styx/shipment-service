@@ -1,0 +1,501 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LogiTrack Shipment API",
+    "version": "Sprint 3"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8083",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Env\u00edos",
+      "description": "Registro, consulta y ciclo de vida de env\u00edos"
+    },
+    {
+      "name": "Asignaci\u00f3n",
+      "description": "Asignaci\u00f3n de repartidores a env\u00edos pendientes"
+    }
+  ],
+  "paths": {
+    "/envios/{envioId}/repartidor": {
+      "put": {
+        "tags": [
+          "Asignaci\u00f3n"
+        ],
+        "summary": "Asigna un repartidor disponible a un env\u00edo pendiente",
+        "operationId": "asignarRepartidor",
+        "parameters": [
+          {
+            "name": "envioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AsignacionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AsignacionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/envios": {
+      "get": {
+        "tags": [
+          "Env\u00edos"
+        ],
+        "summary": "Listar env\u00edos, con filtro opcional por estado",
+        "operationId": "listar",
+        "parameters": [
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDIENTE",
+                "EN_RUTA",
+                "ENTREGADO",
+                "CANCELADO"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Estado inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EnvioResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Env\u00edos"
+        ],
+        "summary": "Registrar un env\u00edo",
+        "operationId": "registrar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnvioRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Env\u00edo creado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvioResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inv\u00e1lidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/envios/{id}/estado": {
+      "patch": {
+        "tags": [
+          "Env\u00edos"
+        ],
+        "summary": "Cambiar el estado de un env\u00edo",
+        "operationId": "cambiarEstado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CambioEstadoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Env\u00edo inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvioResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Transici\u00f3n no permitida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/envios/{id}/cancelacion": {
+      "patch": {
+        "tags": [
+          "Env\u00edos"
+        ],
+        "summary": "Cancelar un env\u00edo PENDIENTE",
+        "operationId": "cancelar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Env\u00edo cancelado"
+          },
+          "404": {
+            "description": "Env\u00edo inexistente"
+          },
+          "409": {
+            "description": "El env\u00edo no est\u00e1 PENDIENTE"
+          }
+        }
+      }
+    },
+    "/envios/{id}": {
+      "get": {
+        "tags": [
+          "Env\u00edos"
+        ],
+        "summary": "Consultar un env\u00edo por id",
+        "operationId": "obtener",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Env\u00edo inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/envios/seguimiento/{codigoSeguimiento}": {
+      "get": {
+        "tags": [
+          "Env\u00edos"
+        ],
+        "summary": "Consultar un env\u00edo por c\u00f3digo de seguimiento",
+        "operationId": "obtenerPorSeguimiento",
+        "parameters": [
+          {
+            "name": "codigoSeguimiento",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Env\u00edo inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnvioResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AsignacionRequest": {
+        "type": "object",
+        "properties": {
+          "repartidorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "repartidorId"
+        ]
+      },
+      "AsignacionResponse": {
+        "type": "object",
+        "properties": {
+          "envioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "codigoSeguimiento": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "repartidorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "DireccionDto": {
+        "type": "object",
+        "properties": {
+          "calle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "numero": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ciudad": {
+            "type": "string",
+            "minLength": 1
+          },
+          "codigoPostal": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "calle",
+          "ciudad",
+          "codigoPostal",
+          "numero"
+        ]
+      },
+      "EnvioRequest": {
+        "type": "object",
+        "properties": {
+          "clienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "origen": {
+            "$ref": "#/components/schemas/DireccionDto"
+          },
+          "destino": {
+            "$ref": "#/components/schemas/DireccionDto"
+          },
+          "peso": {
+            "type": "number",
+            "format": "double"
+          },
+          "ancho": {
+            "type": "number",
+            "format": "double"
+          },
+          "alto": {
+            "type": "number",
+            "format": "double"
+          },
+          "largo": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "alto",
+          "ancho",
+          "destino",
+          "largo",
+          "origen",
+          "peso"
+        ]
+      },
+      "EnvioResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "codigoSeguimiento": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "PENDIENTE",
+              "EN_RUTA",
+              "ENTREGADO",
+              "CANCELADO"
+            ]
+          },
+          "clienteId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "repartidorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "origen": {
+            "$ref": "#/components/schemas/DireccionDto"
+          },
+          "destino": {
+            "$ref": "#/components/schemas/DireccionDto"
+          },
+          "peso": {
+            "type": "number",
+            "format": "double"
+          },
+          "ancho": {
+            "type": "number",
+            "format": "double"
+          },
+          "alto": {
+            "type": "number",
+            "format": "double"
+          },
+          "largo": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CambioEstadoRequest": {
+        "type": "object",
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "PENDIENTE",
+              "EN_RUTA",
+              "ENTREGADO",
+              "CANCELADO"
+            ]
+          }
+        },
+        "required": [
+          "estado"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

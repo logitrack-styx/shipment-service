@@ -1,0 +1,1 @@
+Persistence verified: same ADMIN, no duplicate bootstrap, shipment rows retained

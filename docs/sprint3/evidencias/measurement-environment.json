@@ -1,0 +1,8 @@
+{
+  "cpu": {
+    "Name": "Intel(R) Core(TM) i5-10300H CPU @ 2.50GHz",
+    "NumberOfLogicalProcessors": 8
+  },
+  "host_memory_bytes": 17008959488,
+  "docker_memory_bytes": "8241414144"
+}

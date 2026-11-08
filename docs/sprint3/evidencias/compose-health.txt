@@ -1,0 +1,9 @@
+api-gateway running healthy
+config-server running healthy
+courier-db running healthy
+courier-service running healthy
+eureka-server running healthy
+security-db running healthy
+security-service running healthy
+shipment-db running healthy
+shipment-service running healthy

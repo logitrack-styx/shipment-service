@@ -1,0 +1,7 @@
+config-server: pushed and pulled sha256:a6571a568233cd77b9380ef15fd4d70d6b77430675dc2042002bfb6010769004
+eureka-server: pushed and pulled sha256:f4a51147f144ed021b3071d1ba0facf088c01c4cc04c4aa937b83519d906327f
+security-service: pushed and pulled sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656
+courier-service: pushed and pulled sha256:1e6e1f4cab7aa349af6392c22c1a0591cd356453d47233f59a2737d7b4e2808b
+shipment-service: pushed and pulled sha256:ff682adf16e69fd45a9950a44afec1a69d25d86a54668a25439d48ac6136a507
+api-gateway: pushed and pulled sha256:d524b698d433ddf61ec8acfefc73559f0c6d2f958f342bbd5cc2874f89b7f06f
+Image-only release Compose generated; no build entries

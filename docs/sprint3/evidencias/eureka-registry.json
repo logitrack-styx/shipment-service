@@ -1,0 +1,18 @@
+[
+  {
+    "app": "API-GATEWAY",
+    "status": "UP"
+  },
+  {
+    "app": "SECURITY-SERVICE",
+    "status": "UP"
+  },
+  {
+    "app": "COURIER-SERVICE",
+    "status": "UP"
+  },
+  {
+    "app": "SHIPMENT-SERVICE",
+    "status": "UP"
+  }
+]

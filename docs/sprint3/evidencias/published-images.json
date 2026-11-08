@@ -1,0 +1,62 @@
+[
+  {
+    "service": "config-server",
+    "tag": "facutolaba/logitrack-config-server:0.3.1-s3-f80b03c3e4d5",
+    "digest": "sha256:a6571a568233cd77b9380ef15fd4d70d6b77430675dc2042002bfb6010769004",
+    "image": "facutolaba/logitrack-config-server@sha256:a6571a568233cd77b9380ef15fd4d70d6b77430675dc2042002bfb6010769004",
+    "image_id": "sha256:a6571a568233cd77b9380ef15fd4d70d6b77430675dc2042002bfb6010769004",
+    "source_sha256": "f80b03c3e4d52a9b919eab01bbc6476e1e948aff5f6d2cde9ef0948f6fa8fca3",
+    "push_verified": true,
+    "pull_verified": true
+  },
+  {
+    "service": "eureka-server",
+    "tag": "facutolaba/logitrack-eureka-server:0.3.1-s3-b32e8f3bf0e1",
+    "digest": "sha256:f4a51147f144ed021b3071d1ba0facf088c01c4cc04c4aa937b83519d906327f",
+    "image": "facutolaba/logitrack-eureka-server@sha256:f4a51147f144ed021b3071d1ba0facf088c01c4cc04c4aa937b83519d906327f",
+    "image_id": "sha256:f4a51147f144ed021b3071d1ba0facf088c01c4cc04c4aa937b83519d906327f",
+    "source_sha256": "b32e8f3bf0e175546269a834eef1b1ca6012522996294132902be35738bed76a",
+    "push_verified": true,
+    "pull_verified": true
+  },
+  {
+    "service": "security-service",
+    "tag": "facutolaba/logitrack-security-service:0.3.1-s3-0f7e13b8a291",
+    "digest": "sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656",
+    "image": "facutolaba/logitrack-security-service@sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656",
+    "image_id": "sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656",
+    "source_sha256": "0f7e13b8a2911db7f9348c5fbd80bde305ac888a7149727e437af5a5dc8bf5f6",
+    "push_verified": true,
+    "pull_verified": true
+  },
+  {
+    "service": "courier-service",
+    "tag": "facutolaba/logitrack-courier-service:0.3.1-s3-33b6bf83a787",
+    "digest": "sha256:1e6e1f4cab7aa349af6392c22c1a0591cd356453d47233f59a2737d7b4e2808b",
+    "image": "facutolaba/logitrack-courier-service@sha256:1e6e1f4cab7aa349af6392c22c1a0591cd356453d47233f59a2737d7b4e2808b",
+    "image_id": "sha256:1e6e1f4cab7aa349af6392c22c1a0591cd356453d47233f59a2737d7b4e2808b",
+    "source_sha256": "33b6bf83a7872741151c6570bff9abb82ddb9763d4e53c811d217562915300ee",
+    "push_verified": true,
+    "pull_verified": true
+  },
+  {
+    "service": "shipment-service",
+    "tag": "facutolaba/logitrack-shipment-service:0.3.1-s3-ca2773902ef2",
+    "digest": "sha256:ff682adf16e69fd45a9950a44afec1a69d25d86a54668a25439d48ac6136a507",
+    "image": "facutolaba/logitrack-shipment-service@sha256:ff682adf16e69fd45a9950a44afec1a69d25d86a54668a25439d48ac6136a507",
+    "image_id": "sha256:ff682adf16e69fd45a9950a44afec1a69d25d86a54668a25439d48ac6136a507",
+    "source_sha256": "ca2773902ef2a82e92a753a5c2d3aec4bb3033357bfd80c97fe18a396f7b62a1",
+    "push_verified": true,
+    "pull_verified": true
+  },
+  {
+    "service": "api-gateway",
+    "tag": "facutolaba/logitrack-api-gateway:0.3.1-s3-a3451c6d22e0",
+    "digest": "sha256:d524b698d433ddf61ec8acfefc73559f0c6d2f958f342bbd5cc2874f89b7f06f",
+    "image": "facutolaba/logitrack-api-gateway@sha256:d524b698d433ddf61ec8acfefc73559f0c6d2f958f342bbd5cc2874f89b7f06f",
+    "image_id": "sha256:d524b698d433ddf61ec8acfefc73559f0c6d2f958f342bbd5cc2874f89b7f06f",
+    "source_sha256": "a3451c6d22e0916c7e68da34a8477152f37fe9472772a29fc080ec1d26e044ad",
+    "push_verified": true,
+    "pull_verified": true
+  }
+]

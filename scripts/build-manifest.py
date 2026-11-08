@@ -30,7 +30,7 @@ for repo in ['config-server','eureka-server','security-service','courier-service
     text=text.replace(f'    image: facutolaba/logitrack-{repo}:0.3.0', f'    image: {image}\n    build:\n      context: {context}\n      args:\n        SOURCE_DIGEST: {sha}')
     manifest.append(dict(service=repo,image=image,source_sha256=sha,
         base_commit=subprocess.check_output(['git','-C',repo,'rev-parse','HEAD'],text=True).strip(),
-        source_state='working-tree snapshot; includes uncommitted closure changes'))
+        source_state='source snapshot; source_sha256 identifies exact build inputs'))
 (root/'shipment-service/compose.sprint3.yml').write_text(text,encoding='utf8')
 (root/'shipment-service/docs/sprint3/evidencias/image-sources.json').write_text(json.dumps(manifest,indent=2),encoding='utf8')
 (root/'shipment-service/.env.sprint3.example').write_text('''# Copy outside version control and supply external secrets.

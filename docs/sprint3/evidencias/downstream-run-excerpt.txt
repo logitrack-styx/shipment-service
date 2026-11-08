@@ -1,0 +1,1 @@
+Direct resource-server JWT cases passed: 34

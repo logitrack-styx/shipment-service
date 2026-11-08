@@ -1,0 +1,6 @@
+security-service /v3/api-docs 200
+security-service /swagger-ui/index.html 200
+courier-service /v3/api-docs 401
+courier-service /swagger-ui/index.html 401
+shipment-service /v3/api-docs 200
+shipment-service /swagger-ui/index.html 200

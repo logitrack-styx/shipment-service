@@ -18,6 +18,7 @@ variables.set('aClientPassword',crypto.randomBytes(24).toString('base64url'));
 variables.set('aDemoShipmentId',crypto.randomUUID());
 variables.set('aDemoCourierId',crypto.randomUUID());
 const results=[];
+const requestResults=[];
 let response;
 function expect(actual) {
   const chain={
@@ -53,13 +54,14 @@ for(const folder of collection.item)for(const item of folder.item){
     signal:AbortSignal.timeout(25000)
   });
   const body=await res.json();
+  requestResults.push({name:item.name,status:res.status});
   pm.response={code:res.status,json:()=>body};
   script(item,'test');
 }
 fs.writeFileSync(path.join(service,'docs/sprint3/evidencias/apidog-run.json'),JSON.stringify({
   runner:'Node HTTP runner executing original Postman-compatible prerequest and test scripts',
   collection:collection.info.name,variables:collection.variable.map(v=>v.key),
-  requests:collection.item.reduce((n,f)=>n+f.item.length,0),assertions:results
+  requests:collection.item.reduce((n,f)=>n+f.item.length,0),request_results:requestResults,assertions:results
 },null,2));
 console.log('Collection assertions:',results.length,'; failures:',results.filter(r=>!r.passed).length);
 if(results.some(r=>!r.passed))process.exitCode=1;

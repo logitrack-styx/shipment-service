@@ -1,0 +1,209 @@
+{
+  "security-service": {
+    "commit": "6235792b81223fa94d764236b547e475ff96704d",
+    "suites": [
+      {
+        "name": "com.logitrack.security.JwtTtlTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "15.757"
+      },
+      {
+        "name": "com.logitrack.security.SecurityServiceApplicationTests",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "38.719"
+      }
+    ],
+    "tests": 5,
+    "failures": 0,
+    "errors": 0
+  },
+  "courier-service": {
+    "commit": "36ed75bd9199fef7c119d8b735afdc4962a3cf32",
+    "suites": [
+      {
+        "name": "com.courier.service.CourierApiTest",
+        "tests": "20",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "64.619"
+      }
+    ],
+    "tests": 20,
+    "failures": 0,
+    "errors": 0
+  },
+  "shipment-service": {
+    "commit": "975169123072d4432ddae0b4542c5650d3d6d69c",
+    "suites": [
+      {
+        "name": "com.logitrack.shipment.audit.AuditingIntegrationTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "37.861"
+      },
+      {
+        "name": "com.logitrack.shipment.client.CourierClientImplTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.496"
+      },
+      {
+        "name": "com.logitrack.shipment.config.SecurityContractTest",
+        "tests": "14",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "6.904"
+      },
+      {
+        "name": "com.logitrack.shipment.config.WebMvcSliceSmokeTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.961"
+      },
+      {
+        "name": "com.logitrack.shipment.controller.EnvioControllerTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.207"
+      },
+      {
+        "name": "com.logitrack.shipment.enums.EstadoEnvioTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.004"
+      },
+      {
+        "name": "com.logitrack.shipment.listener.HistorialEstadoListenerIntegrationTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "12.609"
+      },
+      {
+        "name": "com.logitrack.shipment.model.EnvioTest",
+        "tests": "18",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.199"
+      },
+      {
+        "name": "com.logitrack.shipment.repository.ClienteMigrationTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "24.621"
+      },
+      {
+        "name": "com.logitrack.shipment.repository.EnvioRepositoryTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "49.646"
+      },
+      {
+        "name": "com.logitrack.shipment.service.impl.AsignacionServiceImplTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.426"
+      },
+      {
+        "name": "com.logitrack.shipment.service.impl.AsignacionServiceIntegrationTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "7.022"
+      },
+      {
+        "name": "com.logitrack.shipment.service.impl.EnvioServiceImplTest",
+        "tests": "20",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.568"
+      },
+      {
+        "name": "com.logitrack.shipment.ShipmentServiceApplicationTests",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.061"
+      }
+    ],
+    "tests": 87,
+    "failures": 0,
+    "errors": 0
+  },
+  "api-gateway": {
+    "commit": "104694192ee653ee36ddba78986ec3122343a12a",
+    "suites": [
+      {
+        "name": "com.logitrack.gateway.ApiGatewayApplicationTests",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.985"
+      },
+      {
+        "name": "com.logitrack.gateway.config.JwtDecoderContractTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.305"
+      }
+    ],
+    "tests": 2,
+    "failures": 0,
+    "errors": 0
+  },
+  "eureka-server": {
+    "commit": "373f085c04a6c89229e5e498a90ae0948ecea8cf",
+    "suites": [
+      {
+        "name": "com.logitrack.eureka.EurekaServerApplicationTests",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "18.5"
+      }
+    ],
+    "tests": 1,
+    "failures": 0,
+    "errors": 0
+  },
+  "config-server": {
+    "commit": "1bddb3cd910861fc9105df20d6e8837d4dc7fa41",
+    "suites": [],
+    "tests": 0,
+    "failures": 0,
+    "errors": 0
+  }
+}
