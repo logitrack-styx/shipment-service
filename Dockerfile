@@ -28,4 +28,7 @@ EXPOSE 8083
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
   CMD curl --fail --silent http://localhost:8083/actuator/health || exit 1
 
+ARG SOURCE_DIGEST
+LABEL org.logitrack.source.sha256=$SOURCE_DIGEST
+
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

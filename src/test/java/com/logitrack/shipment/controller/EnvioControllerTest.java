@@ -42,8 +42,8 @@ class EnvioControllerTest {
     void debeListarEnviosSinFiltro() throws Exception {
         when(envioService.listar(
                 isNull(EstadoEnvio.class),
-                isNull(Jwt.class)))
-                .thenReturn(List.of());
+                isNull(Jwt.class), eq(0), eq(20)))
+                .thenReturn(org.springframework.data.domain.Page.empty());
 
         mockMvc.perform(get("/envios"))
                 .andExpect(status().isOk())
@@ -51,7 +51,7 @@ class EnvioControllerTest {
 
         verify(envioService).listar(
                 isNull(EstadoEnvio.class),
-                isNull(Jwt.class));
+                isNull(Jwt.class), eq(0), eq(20));
     }
 
     @Test
@@ -59,8 +59,8 @@ class EnvioControllerTest {
     void debeListarEnviosFiltrandoPorEstado() throws Exception {
         when(envioService.listar(
                 eq(EstadoEnvio.PENDIENTE),
-                isNull(Jwt.class)))
-                .thenReturn(List.of());
+                isNull(Jwt.class), eq(0), eq(20)))
+                .thenReturn(org.springframework.data.domain.Page.empty());
 
         mockMvc.perform(get("/envios")
                         .param("estado", "PENDIENTE"))
@@ -69,6 +69,6 @@ class EnvioControllerTest {
 
         verify(envioService).listar(
                 eq(EstadoEnvio.PENDIENTE),
-                isNull(Jwt.class));
+                isNull(Jwt.class), eq(0), eq(20));
     }
 }

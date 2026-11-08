@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -77,6 +78,9 @@ class SecurityContractTest {
     /** Comprueba que un ADMIN con firma y claims válidos puede listar envíos. */
     @Test
     void permiteAdminValido() throws Exception {
+        org.mockito.Mockito.when(envioService.listar(org.mockito.ArgumentMatchers.isNull(),
+                org.mockito.ArgumentMatchers.any(Jwt.class), org.mockito.ArgumentMatchers.eq(0),
+                org.mockito.ArgumentMatchers.eq(20))).thenReturn(org.springframework.data.domain.Page.empty());
         mockMvc.perform(get("/envios").header("Authorization", "Bearer " + token(b -> {})))
                 .andExpect(status().isOk());
     }
@@ -86,7 +90,8 @@ class SecurityContractTest {
     void conflictoOptimistaDevuelve409Comun() throws Exception {
         org.mockito.Mockito.when(envioService.listar(
                 org.mockito.ArgumentMatchers.isNull(),
-                org.mockito.ArgumentMatchers.any(org.springframework.security.oauth2.jwt.Jwt.class)))
+                org.mockito.ArgumentMatchers.any(org.springframework.security.oauth2.jwt.Jwt.class),
+                org.mockito.ArgumentMatchers.eq(0), org.mockito.ArgumentMatchers.eq(20)))
                 .thenThrow(new org.springframework.dao.OptimisticLockingFailureException("interno"));
         mockMvc.perform(get("/envios").header("Authorization", "Bearer " + token(b -> {})))
                 .andExpect(status().isConflict())

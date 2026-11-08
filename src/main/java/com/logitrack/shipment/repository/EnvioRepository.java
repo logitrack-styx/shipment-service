@@ -21,7 +21,10 @@ public interface EnvioRepository extends JpaRepository<Envio, UUID> {
 
     Optional<Envio> findByCodigoSeguimiento(UUID codigoSeguimiento);
 
-    List<Envio> findByEstado(EstadoEnvio estado);
+    default List<Envio> findByEstado(EstadoEnvio estado) {
+        return findByEstado(estado, com.logitrack.shipment.config.BoundedPage.of(0, 20)).getContent();
+    }
+    org.springframework.data.domain.Page<Envio> findByEstado(EstadoEnvio estado, org.springframework.data.domain.Pageable pageable);
 
     /**
      * Asigna un repartidor únicamente si el envío conserva el estado esperado
@@ -80,13 +83,23 @@ public interface EnvioRepository extends JpaRepository<Envio, UUID> {
                 EstadoEnvio.PENDIENTE);
     }
 
-    List<Envio> findByClienteId(UUID clienteId);
+    org.springframework.data.domain.Page<Envio> findByClienteId(UUID clienteId, org.springframework.data.domain.Pageable pageable);
+    default List<Envio> findByClienteId(UUID clienteId) {
+        return findByClienteId(clienteId, com.logitrack.shipment.config.BoundedPage.of(0, 20)).getContent();
+    }
 
-    List<Envio> findByClienteIdAndEstado(
-            UUID clienteId, EstadoEnvio estado);
+    org.springframework.data.domain.Page<Envio> findByClienteIdAndEstado(UUID clienteId, EstadoEnvio estado, org.springframework.data.domain.Pageable pageable);
+    default List<Envio> findByClienteIdAndEstado(UUID clienteId, EstadoEnvio estado) {
+        return findByClienteIdAndEstado(clienteId, estado, com.logitrack.shipment.config.BoundedPage.of(0, 20)).getContent();
+    }
 
-    List<Envio> findByRepartidorId(UUID repartidorId);
+    org.springframework.data.domain.Page<Envio> findByRepartidorId(UUID repartidorId, org.springframework.data.domain.Pageable pageable);
+    default List<Envio> findByRepartidorId(UUID repartidorId) {
+        return findByRepartidorId(repartidorId, com.logitrack.shipment.config.BoundedPage.of(0, 20)).getContent();
+    }
 
-    List<Envio> findByRepartidorIdAndEstado(
-            UUID repartidorId, EstadoEnvio estado);
+    org.springframework.data.domain.Page<Envio> findByRepartidorIdAndEstado(UUID repartidorId, EstadoEnvio estado, org.springframework.data.domain.Pageable pageable);
+    default List<Envio> findByRepartidorIdAndEstado(UUID repartidorId, EstadoEnvio estado) {
+        return findByRepartidorIdAndEstado(repartidorId, estado, com.logitrack.shipment.config.BoundedPage.of(0, 20)).getContent();
+    }
 }

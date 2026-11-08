@@ -54,6 +54,11 @@ class EnvioServiceImplTest {
     @InjectMocks
     private EnvioServiceImpl envioService;
 
+    @Mock
+    private com.logitrack.shipment.repository.ClienteRepository clienteRepository;
+    @Mock
+    private com.logitrack.shipment.client.ClienteIdentityVerifier clienteIdentityVerifier;
+
     private UUID clienteId;
     private EnvioRequest request;
     private Jwt jwtCliente;

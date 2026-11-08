@@ -30,6 +30,16 @@ import java.util.stream.Collectors;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    /**
+     * @param ex falla controlada de integración con identidad
+     * @param request petición fallida
+     * @return 503 sin detalles de infraestructura
+     */
+    @ExceptionHandler(IdentityIntegrationException.class)
+    public ResponseEntity<ErrorResponse> handleIdentity(IdentityIntegrationException ex,
+            HttpServletRequest request) {
+        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(

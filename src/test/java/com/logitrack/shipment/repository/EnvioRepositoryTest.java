@@ -57,6 +57,8 @@ class EnvioRepositoryTest {
 
     @Autowired
     private EnvioRepository envioRepository;
+    @Autowired
+    private ClienteRepository clienteRepository;
 
     @Autowired
     private jakarta.persistence.EntityManager entityManager;
@@ -90,6 +92,7 @@ class EnvioRepositoryTest {
                 30.0
         );
 
+        clienteRepository.asegurarExistencia(envio.getClienteId());
         envio = envioRepository.saveAndFlush(envio);
         repartidorId = UUID.randomUUID();
     }

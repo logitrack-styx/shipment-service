@@ -1,0 +1,264 @@
+name: logitrack-s3-close
+
+services:
+  # CONFIG SERVER (Spring Cloud Config)
+  config-server:
+    image: logitrack/config-server:s3-bdc88c5f10f4
+    build:
+      context: ../config-server
+      args:
+        SOURCE_DIGEST: bdc88c5f10f4f72e84d694fca702ad58a6a130c9e9e1266453d4ceecc196bce5
+    ports:
+      - "127.0.0.1:8888:8888"
+    environment:
+      SPRING_CLOUD_CONFIG_SERVER_GIT_DEFAULT_LABEL: ${CONFIG_GIT_LABEL:-main}
+      CONFIG_GIT_URI: ${CONFIG_GIT_URI:-https://github.com/logitrack-styx/styx-config.git}
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8888/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 25s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  # SERVICE DISCOVERY (Eureka Server)
+  eureka-server:
+    image: logitrack/eureka-server:s3-1b35142975e6
+    build:
+      context: ../eureka-server
+      args:
+        SOURCE_DIGEST: 1b35142975e6f0368e07c054a22b05a55f30d9c9ee7f7a14966d6ef327babb33
+    ports:
+      - "127.0.0.1:8065:8065"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+    depends_on:
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8065/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 35s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  # BASES DE DATOS MYSQL INDEPENDIENTES
+  security-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: logitrack_security
+      MYSQL_USER: ${DB_USERNAME:-logitrack_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD required}
+    volumes:
+      - security_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  courier-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: logitrack_courier
+      MYSQL_USER: ${DB_USERNAME:-logitrack_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD required}
+    volumes:
+      - courier_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  shipment-db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: logitrack_shipment
+      MYSQL_USER: ${DB_USERNAME:-logitrack_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD required}
+    volumes:
+      - shipment_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  # MICROSERVICIOS DE NEGOCIO Y SEGURIDAD
+  security-service:
+    image: logitrack/security-service:s3-9585f6694035
+    build:
+      context: ../security-service
+      args:
+        SOURCE_DIGEST: 9585f6694035ed442ca35fb8a753e2be341b64ed9cbb493250353d5b2c114dce
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      security-db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8081
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://eureka-server:8065/eureka/
+      DB_URL: jdbc:mysql://security-db:3306/logitrack_security
+      DB_USERNAME: ${DB_USERNAME:-logitrack_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      JWT_PRIVATE_KEY_LOCATION: file:/run/secrets/jwt-private.pem
+      JWT_PUBLIC_KEY_LOCATION: file:/run/secrets/jwt-public.pem
+      JWT_ISSUER: logitrack-security
+      JWT_ACCESS_TOKEN_TTL: ${JWT_ACCESS_TOKEN_TTL:-3600}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@logitrack.com}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD required}
+    volumes:
+      - ../logitrack-local-secrets/security/private.pem:/run/secrets/jwt-private.pem:ro
+      - ../logitrack-local-secrets/security/public.pem:/run/secrets/jwt-public.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8081/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  courier-service:
+    image: logitrack/courier-service:s3-ffed0010251f
+    build:
+      context: ../courier-service
+      args:
+        SOURCE_DIGEST: ffed0010251fe4cb6e4467159c3e311a0621e74904fe87026cc6f115e66323e2
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      courier-db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8082
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://eureka-server:8065/eureka/
+      DB_URL: jdbc:mysql://courier-db:3306/logitrack_courier
+      DB_USERNAME: ${DB_USERNAME:-logitrack_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      JWT_PUBLIC_KEY_LOCATION: file:/run/secrets/jwt-public.pem
+      SECURITY_SERVICE_URL: http://security-service:8081
+    volumes:
+      - ../logitrack-local-secrets/security/public.pem:/run/secrets/jwt-public.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8082/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  shipment-service:
+    image: logitrack/shipment-service:s3-dea7b8364bc7
+    build:
+      context: .
+      args:
+        SOURCE_DIGEST: dea7b8364bc7d7b10f8b6a734d7988bf112717e6b9a05e915ad5ecaead9ce055
+    depends_on:
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+      shipment-db:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8083
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://eureka-server:8065/eureka/
+      DB_URL: jdbc:mysql://shipment-db:3306/logitrack_shipment
+      DB_USERNAME: ${DB_USERNAME:-logitrack_user}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      JWT_PUBLIC_KEY_LOCATION: file:/run/secrets/jwt-public.pem
+      JWT_ISSUER: logitrack-security
+      JWT_ACCESS_TOKEN_TTL: ${JWT_ACCESS_TOKEN_TTL:-3600}
+    volumes:
+      - ../logitrack-local-secrets/security/public.pem:/run/secrets/jwt-public.pem:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8083/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+  # API GATEWAY (Spring Cloud Gateway WebFlux)
+  api-gateway:
+    image: logitrack/api-gateway:s3-3f9e5f0b69f8
+    build:
+      context: ../api-gateway
+      args:
+        SOURCE_DIGEST: 3f9e5f0b69f850ebcea07cb13ab3b1738df235112204ed43cb9f172ce5ea0bc2
+    ports:
+      - "127.0.0.1:8066:8066"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://eureka-server:8065/eureka/
+      JWT_PUBLIC_KEY_LOCATION: file:/run/secrets/jwt-public.pem
+      JWT_ISSUER: logitrack-security
+      JWT_ACCESS_TOKEN_TTL: ${JWT_ACCESS_TOKEN_TTL:-3600}
+    volumes:
+      - ../logitrack-local-secrets/security/public.pem:/run/secrets/jwt-public.pem:ro
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      security-service:
+        condition: service_healthy
+      courier-service:
+        condition: service_healthy
+      shipment-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8066/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 35s
+    networks:
+      - logitrack-net
+    restart: unless-stopped
+
+networks:
+  logitrack-net:
+    driver: bridge
+
+volumes:
+  security_db_data:
+  courier_db_data:
+  shipment_db_data:

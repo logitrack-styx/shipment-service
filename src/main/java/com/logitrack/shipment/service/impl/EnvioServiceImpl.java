@@ -29,8 +29,26 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class EnvioServiceImpl implements EnvioService {
 
+    /**
+     * @param estado filtro opcional
+     * @param jwt identidad autorizada
+     * @param page página desde cero
+     * @param size máximo de 100 filas
+     * @return página de resultados
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<EnvioResponse> listar(EstadoEnvio estado, Jwt jwt, int page, int size) {
+        if (!"ADMIN".equals(obtenerRol(jwt))) throw new AccessDeniedException("Solo ADMIN puede listar envíos");
+        var pageable = com.logitrack.shipment.config.BoundedPage.of(page, size);
+        return (estado == null ? envioRepository.findAll(pageable) : envioRepository.findByEstado(estado, pageable))
+                .map(EnvioResponse::from);
+    }
+
     private final EnvioRepository envioRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final com.logitrack.shipment.repository.ClienteRepository clienteRepository;
+    private final com.logitrack.shipment.client.ClienteIdentityVerifier clienteIdentityVerifier;
 
     /**
      * Variante heredada: solo ADMIN puede consultar sin comprobar pertenencia.
@@ -59,9 +77,10 @@ public class EnvioServiceImpl implements EnvioService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public List<EnvioResponse> listar(EstadoEnvio estado) {
-        List<Envio> envios = estado == null
-                ? envioRepository.findAll()
-                : envioRepository.findByEstado(estado);
+        var page = com.logitrack.shipment.config.BoundedPage.of(0, 20);
+        List<Envio> envios = (estado == null
+                ? envioRepository.findAll(page)
+                : envioRepository.findByEstado(estado, page)).getContent();
 
         return envios.stream()
                 .map(EnvioResponse::from)
@@ -146,6 +165,7 @@ public class EnvioServiceImpl implements EnvioService {
                         "ADMIN debe indicar el cliente destinatario");
             }
 
+            clienteIdentityVerifier.verificar(request.clienteId());
             return registrarParaCliente(request, request.clienteId());
         }
 
@@ -157,6 +177,7 @@ public class EnvioServiceImpl implements EnvioService {
             EnvioRequest request,
             UUID clienteId) {
 
+        clienteRepository.asegurarExistencia(clienteId);
         Envio envio = new Envio(
                 clienteId,
                 request.origen().aEntidad(),
