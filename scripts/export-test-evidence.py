@@ -21,7 +21,9 @@ for repo in ['security-service','courier-service','shipment-service','api-gatewa
 (out/'surefire-summary.json').write_text(json.dumps(report,indent=2),encoding='utf8')
 
 for name in ['docker-build-verified-source','closure-final-start','e2e-recovery-final','apidog-recovery-final',
-             'runtime-release-final','scale-run','persistence-run','downstream-run','publish-run','release-pull']:
+             'runtime-release-final','scale-run','persistence-run','downstream-run','publish-run','release-pull',
+             'e2e-registry-final','runtime-registry-final','apidog-registry-final','security-common-errors',
+             'downstream-envelope-final','security-envelope-publish','restore-run']:
     path=out/(name+'.log')
     if path.exists():
         lines=path.read_text(encoding='utf8',errors='replace').splitlines()

@@ -99,7 +99,7 @@ services:
 
   # MICROSERVICIOS DE NEGOCIO Y SEGURIDAD
   security-service:
-    image: facutolaba/logitrack-security-service@sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656
+    image: facutolaba/logitrack-security-service@sha256:d286c653372443ce299a71c6be54b19aee726dad51afeaf54b3c974647329942
     depends_on:
       config-server:
         condition: service_healthy

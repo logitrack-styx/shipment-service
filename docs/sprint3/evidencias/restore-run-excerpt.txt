@@ -1,0 +1,1 @@
+Backup restore verified in isolated scratch schema; source schema untouched

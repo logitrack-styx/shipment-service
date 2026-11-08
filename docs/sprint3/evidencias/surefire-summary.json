@@ -1,6 +1,6 @@
 {
   "security-service": {
-    "commit": "6235792b81223fa94d764236b547e475ff96704d",
+    "commit": "57729b49fa5a168a2452b6e72004afd6b2451855",
     "suites": [
       {
         "name": "com.logitrack.security.JwtTtlTest",
@@ -8,18 +8,18 @@
         "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "15.757"
+        "time": "1.928"
       },
       {
         "name": "com.logitrack.security.SecurityServiceApplicationTests",
-        "tests": "4",
+        "tests": "5",
         "failures": "0",
         "errors": "0",
         "skipped": "0",
-        "time": "38.719"
+        "time": "18.934"
       }
     ],
-    "tests": 5,
+    "tests": 6,
     "failures": 0,
     "errors": 0
   },
@@ -40,7 +40,7 @@
     "errors": 0
   },
   "shipment-service": {
-    "commit": "975169123072d4432ddae0b4542c5650d3d6d69c",
+    "commit": "fd2a80ee8989927f802f10f4b2bf6223647bbcdf",
     "suites": [
       {
         "name": "com.logitrack.shipment.audit.AuditingIntegrationTest",

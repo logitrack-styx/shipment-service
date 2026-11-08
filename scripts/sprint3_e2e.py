@@ -169,8 +169,16 @@ def main():
     check('S3-20 Gateway recovery discovery convergence',gateway_recovery,200)
     check('S3-01 Config environment',call('GET','/shipment-service/default',base='http://localhost:8888'),200,
           lambda b:b.get('name')=='shipment-service')
-    check('S3-02 Eureka UP',call('GET','/eureka/apps',headers={'Accept':'application/json'},base='http://localhost:8065'),200,
-        lambda b:all(any(i['status']=='UP' for i in a['instance']) for a in b['applications']['application']))
+    expected_apps={'API-GATEWAY','SECURITY-SERVICE','COURIER-SERVICE','SHIPMENT-SERVICE'}
+    def complete_registry(body):
+        applications=body['applications']['application']
+        return {a['name'] for a in applications}==expected_apps and all(
+            any(i['status']=='UP' for i in a['instance']) for a in applications)
+    for attempt in range(60):
+        registry_result=call('GET','/eureka/apps',headers={'Accept':'application/json'},base='http://localhost:8065')
+        if registry_result[0]==200 and complete_registry(registry_result[1]):break
+        time.sleep(2)
+    check('S3-02 Eureka UP',registry_result,200,complete_registry)
     OUT.write_text(json.dumps(REPORT,indent=2),encoding='utf8')
     print('E2E assertions passed:',len(REPORT),'; report contains no tokens or credentials')
 

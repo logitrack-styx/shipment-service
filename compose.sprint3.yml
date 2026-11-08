@@ -107,11 +107,11 @@ services:
 
   # MICROSERVICIOS DE NEGOCIO Y SEGURIDAD
   security-service:
-    image: logitrack/security-service:s3-0f7e13b8a291
+    image: logitrack/security-service:s3-d63f2811f1b3
     build:
       context: ../security-service
       args:
-        SOURCE_DIGEST: 0f7e13b8a2911db7f9348c5fbd80bde305ac888a7149727e437af5a5dc8bf5f6
+        SOURCE_DIGEST: d63f2811f1b38f7b65919abf0417b5ac6478761aea0e85e9d464fe44dfcc2d7a
     depends_on:
       config-server:
         condition: service_healthy

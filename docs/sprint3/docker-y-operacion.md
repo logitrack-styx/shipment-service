@@ -40,3 +40,5 @@ El preview de Swagger es una herramienta temporal en 127.0.0.1:8099 que solo adm
 Courier conserva ddl-auto:update solo para la demo académica según ADR-004; no se declara listo para producción. Falta una migración Courier revisada sobre backup para cualquier despliegue productivo. El TTL de acceso por defecto sigue siendo una hora, sin revocación inmediata de JWT ya emitidos. No se configuró TLS público ni se extrapolan mediciones locales a una plataforma productiva. Ninguno de esos puntos agrega funcionalidad de Sprint 4.
 
 Fuentes oficiales consultadas: [multistage Docker](https://docs.docker.com/build/building/multi-stage/), [Temurin JDK/JRE](https://adoptium.net/temurin/releases/), [MySQL 8.4](https://dev.mysql.com/doc/relnotes/mysql/8.4/en/).
+
+Se comprobó además la restauración de un dump de Shipment en un esquema nuevo del MySQL aislado: conteos y checksum de identificadores coinciden y no hay envíos huérfanos. El esquema original no se modificó; el esquema de verificación se conserva para inspección. Ver restore-report.json. Las bases resueltas se registran en base-images.json y MySQL del Compose de entrega también queda fijado por digest.

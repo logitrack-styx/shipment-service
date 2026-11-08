@@ -138,7 +138,7 @@
     "title": "[S3-19] Verificar deuda de Sprint 2: bootstrap ADMIN, issuer y contrato login",
     "problem": "Deuda de identidad S2",
     "path": "security-service/.../AdminBootstrap.java; AuthServiceImpl.java",
-    "proof": "suite 5 pruebas, login por email en MySQL, bootstrap único después de reinicio, TTL",
+    "proof": "suite Security, login por email en MySQL, errores comunes UTC, bootstrap único después de reinicio, TTL",
     "url": "https://github.com/logitrack-styx/security-service/issues/14",
     "initial_state": "OPEN"
   },

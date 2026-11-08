@@ -12,6 +12,13 @@ email_auth=call('POST','/api/v1/auth/login',body={'email':ENV.get('ADMIN_EMAIL',
                                              'password':ENV['ADMIN_PASSWORD']})
 assert email_auth[0]==200
 report.append({'service':'security-service','case':'email-login-MySQL','status':200,'passed':True})
+bad_login=call('POST','/api/v1/auth/login',body={'username':'missing-account','password':'invalid-test-password'})
+assert bad_login[0]==401 and set(bad_login[1])=={'status','error','mensaje','timestamp'}
+assert bad_login[1]['error']=='Unauthorized' and bad_login[1]['timestamp'].endswith('Z')
+report.append({'service':'security-service','case':'login-error-envelope','status':401,'passed':True})
+bad_input=call('POST','/api/v1/auth/register',body={})
+assert bad_input[0]==400 and set(bad_input[1])=={'status','error','mensaje','timestamp'}
+report.append({'service':'security-service','case':'validation-error-envelope','status':400,'passed':True})
 cases=[('absent',None),('tampered',token[:-10]+'AAAAAAAAAA')]
 for name,changes in [('issuer',{'iss':'other'}),('expired',{'exp':int(time.time())-120}),
     ('subject',{'sub':'invalid'}),('roles-string',{'roles':'ADMIN'}),('roles-unknown',{'roles':['UNKNOWN']}),

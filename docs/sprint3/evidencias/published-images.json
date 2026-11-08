@@ -21,11 +21,11 @@
   },
   {
     "service": "security-service",
-    "tag": "facutolaba/logitrack-security-service:0.3.1-s3-0f7e13b8a291",
-    "digest": "sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656",
-    "image": "facutolaba/logitrack-security-service@sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656",
-    "image_id": "sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656",
-    "source_sha256": "0f7e13b8a2911db7f9348c5fbd80bde305ac888a7149727e437af5a5dc8bf5f6",
+    "tag": "facutolaba/logitrack-security-service:0.3.1-s3-d63f2811f1b3",
+    "digest": "sha256:d286c653372443ce299a71c6be54b19aee726dad51afeaf54b3c974647329942",
+    "image": "facutolaba/logitrack-security-service@sha256:d286c653372443ce299a71c6be54b19aee726dad51afeaf54b3c974647329942",
+    "image_id": "sha256:d286c653372443ce299a71c6be54b19aee726dad51afeaf54b3c974647329942",
+    "source_sha256": "d63f2811f1b38f7b65919abf0417b5ac6478761aea0e85e9d464fe44dfcc2d7a",
     "push_verified": true,
     "pull_verified": true
   },

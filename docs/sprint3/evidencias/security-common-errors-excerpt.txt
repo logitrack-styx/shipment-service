@@ -1,0 +1,35 @@
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-08T10:38:19.780-03:00  INFO 23640 --- [security-service] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-11-08T10:38:19.844-03:00  INFO 23640 --- [security-service] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-08T10:38:22.050-03:00  INFO 23640 --- [security-service] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoints beneath base path '/actuator'
+2026-11-08T10:38:23.656-03:00  INFO 23640 --- [security-service] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-08T10:38:23.656-03:00  INFO 23640 --- [security-service] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-08T10:38:23.659-03:00  INFO 23640 --- [security-service] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2026-11-08T10:38:24.695-03:00  INFO 23640 --- [security-service] [           main] o.s.cloud.commons.util.InetUtils         : Cannot determine local hostname
+2026-11-08T10:38:24.720-03:00  INFO 23640 --- [security-service] [           main] DiscoveryClientOptionalArgsConfiguration : Eureka HTTP Client uses RestTemplate.
+2026-11-08T10:38:24.786-03:00  WARN 23640 --- [security-service] [           main] iguration$LoadBalancerCaffeineWarnLogger : Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath.
+2026-11-08T10:38:24.895-03:00  INFO 23640 --- [security-service] [           main] c.l.s.SecurityServiceApplicationTests    : Started SecurityServiceApplicationTests in 15.373 seconds (process running for 19.626)
+2026-11-08T10:38:25.077-03:00  WARN 23640 --- [security-service] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-11-08T10:38:25.078-03:00  WARN 23640 --- [security-service] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-11-08T10:38:25.715-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : Se ha registrado el Usuario: ce692961-6c50-4b54-9620-13c707f3ddbb
+2026-11-08T10:38:26.605-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : Se ha logeadoc el Usuario: 45933ea0-c30d-4eb1-afa3-a3233cac1fd7
+2026-11-08T10:38:26.646-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : Contraseña incorrecta para el Usuario: 45933ea0-c30d-4eb1-afa3-a3233cac1fd7
+2026-11-08T10:38:26.671-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : No se ha encontrado el Usuario: missing-user
+2026-11-08T10:38:27.015-03:00  INFO 23640 --- [security-service] [           main] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 324 ms
+2026-11-08T10:38:27.183-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : Se ha registrado el Usuario: dc388f3c-a0ea-4f4e-8c0a-d27990edc44d
+2026-11-08T10:38:27.290-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : Se ha logeadoc el Usuario: dc388f3c-a0ea-4f4e-8c0a-d27990edc44d
+2026-11-08T10:38:27.315-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.UsuarioServiceImpl    : Se ha encontrado el Usuario: dc388f3c-a0ea-4f4e-8c0a-d27990edc44d
+2026-11-08T10:38:27.350-03:00  INFO 23640 --- [security-service] [           main] c.l.s.service.impl.AuthServiceImpl       : No se ha encontrado el Usuario: missing
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 18.93 s -- in com.logitrack.security.SecurityServiceApplicationTests
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  39.943 s
+[INFO] Finished at: 2026-11-08T10:38:27-03:00
+[INFO] ------------------------------------------------------------------------

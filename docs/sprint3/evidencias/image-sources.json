@@ -15,9 +15,9 @@
   },
   {
     "service": "security-service",
-    "image": "logitrack/security-service:s3-0f7e13b8a291",
-    "source_sha256": "0f7e13b8a2911db7f9348c5fbd80bde305ac888a7149727e437af5a5dc8bf5f6",
-    "base_commit": "6235792b81223fa94d764236b547e475ff96704d",
+    "image": "logitrack/security-service:s3-d63f2811f1b3",
+    "source_sha256": "d63f2811f1b38f7b65919abf0417b5ac6478761aea0e85e9d464fe44dfcc2d7a",
+    "base_commit": "57729b49fa5a168a2452b6e72004afd6b2451855",
     "source_state": "source snapshot; source_sha256 identifies exact build inputs"
   },
   {
@@ -31,7 +31,7 @@
     "service": "shipment-service",
     "image": "logitrack/shipment-service:s3-ca2773902ef2",
     "source_sha256": "ca2773902ef2a82e92a753a5c2d3aec4bb3033357bfd80c97fe18a396f7b62a1",
-    "base_commit": "975169123072d4432ddae0b4542c5650d3d6d69c",
+    "base_commit": "fd2a80ee8989927f802f10f4b2bf6223647bbcdf",
     "source_state": "source snapshot; source_sha256 identifies exact build inputs"
   },
   {

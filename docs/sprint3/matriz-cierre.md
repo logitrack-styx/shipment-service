@@ -2,13 +2,15 @@
 
 Estado técnico: VALIDADO en las ramas de cierre. Integración y cierre administrativo se acreditan separadamente con snapshots de GitHub; no se deducen de estas pruebas.
 
-Ejecución 2026-11-08: 55 comprobaciones E2E; 16 aserciones Apidog; 34 comprobaciones directas de JWT/email. Nueve contenedores saludables y seis imágenes publicadas/descargadas por digest.
+El acta administrativa final y los cierres individuales se consultan en [S3-21 / shipment-service#55](https://github.com/logitrack-styx/shipment-service/issues/55). Este documento conserva la distinción entre prueba técnica y estado remoto.
+
+Ejecución 2026-11-08: 55 comprobaciones E2E; 16 aserciones Apidog; 36 comprobaciones directas de JWT/email. Nueve contenedores saludables y seis imágenes publicadas/descargadas por digest.
 
 ## Pruebas automatizadas
 
 | Repositorio | Tests | Fallos | Errores |
 |---|---:|---:|---:|
-| security-service | 5 | 0 | 0 |
+| security-service | 6 | 0 | 0 |
 | courier-service | 20 | 0 | 0 |
 | shipment-service | 87 | 0 | 0 |
 | api-gateway | 2 | 0 | 0 |
@@ -107,7 +109,7 @@ Config no tiene tests existentes: su build no se presenta como suite funcional. 
 
 - Problema: Deuda de identidad S2.
 - Implementación y motivo: `security-service/.../AdminBootstrap.java; AuthServiceImpl.java`; mantiene separación de dominios y contrato vigente.
-- Verificación: suite 5 pruebas, login por email en MySQL, bootstrap único después de reinicio, TTL.
+- Verificación: suite Security, login por email en MySQL, errores comunes UTC, bootstrap único después de reinicio, TTL.
 - Estado técnico: VALIDADO. [Issue](https://github.com/logitrack-styx/security-service/issues/14); estado administrativo inicial: OPEN.
 
 ### S3-13 — security-service#13
@@ -203,7 +205,7 @@ Config no tiene tests existentes: su build no se presenta como suite funcional. 
 
 ## Evidencias y límites
 
-Reportes: e2e-report.json, apidog-run.json, downstream-jwt-report.json, runtime-report.json, persistence-report.json, scale-report.json, published-images.json y surefire-summary.json en evidencias/. Los fallos intermedios se conservaron localmente y se corrigieron; no se presentan como aprobaciones.
+Reportes: e2e-report.json, apidog-run.json, downstream-jwt-report.json, runtime-report.json, persistence-report.json, restore-report.json, scale-report.json, published-images.json y surefire-summary.json en evidencias/. Los fallos intermedios se registraron y corrigieron; no se presentan como aprobaciones.
 
 Swagger fue observado en navegador en las tres APIs; ver swagger-observacion.md. La colección usa el export que confirmó el usuario y conserva sus doce nombres a*. El runner se identifica como HTTP/Node, no como la app de escritorio Apidog.
 

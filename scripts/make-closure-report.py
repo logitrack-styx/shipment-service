@@ -8,13 +8,24 @@ docs=service/'docs/sprint3'
 e=docs/'evidencias'
 def load(name):return json.loads((e/name).read_text(encoding='utf-8-sig'))
 e2e=load('e2e-report.json'); assert all(r['assertions_passed'] for r in e2e)
+assert len(e2e)>=55, 'E2E run is incomplete'
+groups={match.group(0) for result in e2e for match in re.finditer(r'S3-\d{2}',result['scenario'])}
+assert {f'S3-{i:02}' for i in range(1,21)} <= groups, 'Missing E2E scenario group'
+assert e2e[-1]['scenario']=='S3-02 Eureka UP', 'E2E final checks not reached'
 apidog=load('apidog-run.json');assert all(r['passed'] for r in apidog['assertions'])
 jwt=load('downstream-jwt-report.json');assert all(r['passed'] for r in jwt)
 runtime=load('runtime-report.json');assert len(runtime['compose'])==9
 assert all(r['health']=='healthy' for r in runtime['compose'])
 publications=load('published-images.json');assert len(publications)==6
 assert all(r['push_verified'] and r['pull_verified'] for r in publications)
+sources=load('image-sources.json')
+for source in sources:
+    published=next(p for p in publications if p['service']==source['service'])
+    assert published['source_sha256']==source['source_sha256'], 'Unpublished current source snapshot'
+    running=next(image for image in runtime['images'] if image['service']==source['service'])
+    assert running['id']==published['image_id'], 'Runtime does not match published image'
 persistence=load('persistence-report.json');assert persistence['same_admin_id']
+restore=load('restore-report.json');assert restore['counts_and_id_checksum_match'] and restore['original_schema_untouched']
 unit=load('surefire-summary.json');assert all(not r['failures'] and not r['errors'] for r in unit.values())
 
 mapping={
@@ -37,12 +48,13 @@ mapping={
 'S3-16':('Arranque, caída y recuperación','scripts/sprint3_e2e.py; Compose','E2E S3-19/20: caída 503 sin escritura y recuperación Feign/Gateway'),
 'S3-17':('Colección Apidog vigente','docs/sprint3/apidog-coleccion.json; scripts/run-apidog.mjs','siete requests y scripts originales; doce variables exactas; 16 aserciones'),
 'S3-18':('Matriz de veinte escenarios','scripts/sprint3_e2e.py','55 comprobaciones, incluyendo los veinte grupos S3-01..20, runtime y persistencia'),
-'S3-19':('Deuda de identidad S2','security-service/.../AdminBootstrap.java; AuthServiceImpl.java','suite 5 pruebas, login por email en MySQL, bootstrap único después de reinicio, TTL'),
+'S3-19':('Deuda de identidad S2','security-service/.../AdminBootstrap.java; AuthServiceImpl.java','suite Security, login por email en MySQL, errores comunes UTC, bootstrap único después de reinicio, TTL'),
 'S3-20':('Decisión de deuda Courier','courier-service/.../SecurityServiceUsuarioRolVerifier.java; ADR-004','RestClient acotado al alta con timeouts; ddl-auto:update justificado para demo, no producción'),
 'S3-21':('Review y defensa','docs/sprint3/guion-review.md; fichas y matriz','guion equivalente de 14 minutos con pruebas reales y limitaciones explícitas')}
 
 lines=['# Matriz de cierre — evidencia ejecutada','',
 'Estado técnico: VALIDADO en las ramas de cierre. Integración y cierre administrativo se acreditan separadamente con snapshots de GitHub; no se deducen de estas pruebas.','',
+'El acta administrativa final y los cierres individuales se consultan en [S3-21 / shipment-service#55](https://github.com/logitrack-styx/shipment-service/issues/55). Este documento conserva la distinción entre prueba técnica y estado remoto.','',
 f'Ejecución 2026-11-08: {len(e2e)} comprobaciones E2E; {len(apidog["assertions"])} aserciones Apidog; {len(jwt)} comprobaciones directas de JWT/email. Nueve contenedores saludables y seis imágenes publicadas/descargadas por digest.','',
 '## Pruebas automatizadas','', '| Repositorio | Tests | Fallos | Errores |','|---|---:|---:|---:|']
 for repo,result in unit.items():lines.append(f'| {repo} | {result["tests"]} | {result["failures"]} | {result["errors"]} |')
@@ -68,7 +80,7 @@ for file in sorted(e.glob('docs-issues-*.json')):
         index.append({'repo':repo,'number':issue['number'],'id':key,'title':issue['title'],
             'problem':problem,'path':path,'proof':proof,'url':issue['url'],'initial_state':issue['state']})
 lines+=['## Evidencias y límites','',
-'Reportes: e2e-report.json, apidog-run.json, downstream-jwt-report.json, runtime-report.json, persistence-report.json, scale-report.json, published-images.json y surefire-summary.json en evidencias/. Los fallos intermedios se conservaron localmente y se corrigieron; no se presentan como aprobaciones.',
+'Reportes: e2e-report.json, apidog-run.json, downstream-jwt-report.json, runtime-report.json, persistence-report.json, restore-report.json, scale-report.json, published-images.json y surefire-summary.json en evidencias/. Los fallos intermedios se registraron y corrigieron; no se presentan como aprobaciones.',
 '', 'Swagger fue observado en navegador en las tres APIs; ver swagger-observacion.md. La colección usa el export que confirmó el usuario y conserva sus doce nombres a*. El runner se identifica como HTTP/Node, no como la app de escritorio Apidog.',
 '', 'Las fuentes S1/S2/S3 y el contrato S2 fueron encontrados y leídos tras ampliar el inventario. No se localizó S3 v1.2 ni la matriz JSON original; los criterios se contrastaron con la consigna oficial S3, cierre v2 aprobado, issues y colección vigente. No se inventa haber leído archivos ausentes.',
 '', 'SCL continúa como término no confirmado por ausencia de grabación/transcripción. Courier ddl-auto:update queda limitado y justificado para demo en ADR-004; no se declara production-ready. No se incorporaron funcionalidades S4.',

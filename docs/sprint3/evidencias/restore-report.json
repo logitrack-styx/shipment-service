@@ -1,0 +1,9 @@
+{
+  "source_project": "logitrack-s3-close",
+  "scratch_schema": "logitrack_restorecheck_99bbc4dfeb",
+  "dump_bytes": 2366838,
+  "counts_and_id_checksum_match": true,
+  "orphan_shipments": 0,
+  "original_schema_untouched": true,
+  "scratch_schema_retained_for_inspection": true
+}
