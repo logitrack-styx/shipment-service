@@ -23,3 +23,4 @@ Thumbs.db
 # Local dumps and logs
 logitrack_backup*.sql
 *.log
+/scripts/__pycache__/

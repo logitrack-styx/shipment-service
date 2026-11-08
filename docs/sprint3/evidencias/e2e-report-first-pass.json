@@ -1,0 +1,328 @@
+[
+  {
+    "scenario": "A-01 / S3-03 ADMIN login",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-04 users/me",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "PREP-01 / S3-05 register CLIENTE",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "PREP-02 CLIENTE login",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "A-02 / S3-09 missing JWT",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "A-03 tampered JWT",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "A-05 ADMIN couriers",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-06 ADMIN creates REPARTIDOR",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-06 create Courier profile",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "REPARTIDOR login",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-07 create owned Shipment",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "ADMIN registers for existing CLIENTE",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "ADMIN rejects REPARTIDOR as CLIENTE",
+    "expected_status": 400,
+    "actual_status": 400,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "ADMIN rejects nonexistent CLIENTE",
+    "expected_status": 404,
+    "actual_status": 404,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "A-04 / S3-10 CLIENTE cannot assign",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-08 Feign assignment",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-11 repeated PUT no duplicate",
+    "expected_status": 409,
+    "actual_status": 409,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-12 REPARTIDOR assigned visibility",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-12 REPARTIDOR cannot create Shipment",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "prepare other CLIENTE",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "other CLIENTE login",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-13 owner isolation read",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-13 owner isolation cancel",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-14 nonexistent Courier",
+    "expected_status": 404,
+    "actual_status": 404,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-07 create owned Shipment",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-14 Feign nonexistent Courier",
+    "expected_status": 404,
+    "actual_status": 404,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "set Courier inactive",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-07 create owned Shipment",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-15 inactive Courier conflict",
+    "expected_status": 409,
+    "actual_status": 409,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "set Courier active",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-07 create owned Shipment",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-16 concurrent assignment",
+    "actual_statuses": [
+      200,
+      409
+    ],
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-17 bounded pagination",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-17 page limit",
+    "expected_status": 400,
+    "actual_status": 400,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-17 negative page",
+    "expected_status": 400,
+    "actual_status": 400,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-17 empty page",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT negative issuer",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT negative expired",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT negative subject",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT negative roles-string",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT negative roles-unknown",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT negative roles-empty",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT missing exp",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "JWT forbidden HS256",
+    "expected_status": 401,
+    "actual_status": 401,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "deny unknown route",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "deny unknown method",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-18 CORS preflight",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "CORS rejects unknown origin",
+    "expected_status": 403,
+    "actual_status": 403,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-07 create owned Shipment",
+    "expected_status": 201,
+    "actual_status": 201,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-19 Courier outage controlled",
+    "expected_status": 503,
+    "actual_status": 503,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-19 outage no write",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-20 Courier recovery assignment",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-01 Config environment",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  },
+  {
+    "scenario": "S3-02 Eureka UP",
+    "expected_status": 200,
+    "actual_status": 200,
+    "assertions_passed": true
+  }
+]

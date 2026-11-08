@@ -1,0 +1,14 @@
+# Historial de verificación
+
+Los estados de auditoria-inicial.md e iteracion-01.md son históricos; la matriz-cierre.md y los reportes finales los suceden.
+
+1. Docker inicialmente no estaba disponible; se inició Desktop y se repitió Shipment. La suite base pasó de bloqueo de Testcontainers a 86 pruebas aprobadas.
+2. La paginación cambió la firma interna del listado. Dos tests web conservaban mocks de la firma anterior y devolvían 500; se actualizaron conservando las aserciones y la suite de Shipment aprobó 87 pruebas, incluida la nueva migración/escala.
+3. El runner E2E tenía una variable que ocultaba el módulo concurrent.futures. Se corrigió y se ejecutó realmente la carrera de asignación; no se atribuyó éxito a su primer intento incompleto.
+4. Una ejecución Apidog inmediatamente posterior a recuperar Courier falló en A-05. No se conservó el código HTTP de esa respuesta inicial, por lo que no se presenta una causa exacta como demostrada. El runner ahora registra estados por request; el E2E exige recuperación por Gateway además de Feign. La repetición final aprobó siete requests y 16 aserciones.
+5. La revisión automática rechazó inicialmente el merge a main sin autorización explícita. El usuario autorizó después los siete PRs. Mientras main aún no contenía el TTL externo, la verificación de esa propiedad falló; se repitió después del merge autorizado y Config Server sirvió la configuración esperada desde Git.
+6. Se corrigieron problemas de codificación en utilidades de edición y un alias de encoding del generador de reportes. Los reportes se regeneraron desde las ejecuciones reales; ningún fallo de generación se presentó como una prueba funcional aprobada.
+7. Se detectó y corrigió el formato heredado de errores de login de Security, que no coincidía con el filtro JWT. El usuario autorizó expresamente el PR correctivo y la nueva imagen. Security quedó con seis tests aprobados y la regresión directa con 36 comprobaciones.
+8. Después de un despliegue, una primera respuesta de login correcta no garantizó estabilidad de descubrimiento: una ejecución posterior recibió 503 durante el registro de un cliente. El readiness del runner ahora exige cinco respuestas consecutivas; no reintenta aserciones de negocio fallidas. También se corrigió la comprobación de Eureka para exigir explícitamente las cuatro aplicaciones después de recuperar Courier, esperando su registro dentro de una ventana acotada. Las repeticiones aprobadas se distinguen de los intentos incompletos.
+
+Los archivos `*-excerpt.txt` son extractos reales con espacios finales recortados y secretos depurados. Los nombres `e2e-final-excerpt.txt` y `apidog-final-excerpt.txt`, si se consultan como antecedentes, corresponden a intentos anteriores; los finales vigentes son `e2e-recovery-final-excerpt.txt`, `apidog-recovery-final-excerpt.txt`, `e2e-report.json` y `apidog-run.json`. Los `.log` completos permanecen locales e ignorados por Git.

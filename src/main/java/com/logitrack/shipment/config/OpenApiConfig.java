@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "LogiTrack Shipment API", version = "Sprint 2"),
+        info = @Info(title = "LogiTrack Shipment API", version = "Sprint 3"),
         security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP,
         scheme = "bearer", bearerFormat = "JWT")

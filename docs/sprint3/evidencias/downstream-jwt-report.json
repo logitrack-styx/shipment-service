@@ -1,0 +1,218 @@
+[
+  {
+    "service": "security-service",
+    "case": "email-login-MySQL",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "login-error-envelope",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "validation-error-envelope",
+    "status": 400,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "valid",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "absent",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "tampered",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "issuer",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "expired",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "subject",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "roles-string",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "roles-unknown",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "roles-empty",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "missing-exp",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "security-service",
+    "case": "algorithm-HS256",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "valid",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "absent",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "tampered",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "issuer",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "expired",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "subject",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "roles-string",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "roles-unknown",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "roles-empty",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "missing-exp",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "courier-service",
+    "case": "algorithm-HS256",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "valid",
+    "status": 200,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "absent",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "tampered",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "issuer",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "expired",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "subject",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "roles-string",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "roles-unknown",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "roles-empty",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "missing-exp",
+    "status": 401,
+    "passed": true
+  },
+  {
+    "service": "shipment-service",
+    "case": "algorithm-HS256",
+    "status": 401,
+    "passed": true
+  }
+]

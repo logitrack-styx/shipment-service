@@ -1,0 +1,482 @@
+{
+  "info": {
+    "name": "LogiTrack Sprint 3 - cierre verificado",
+    "_postman_id": "50fdfc32-c444-4f24-aea6-5f82ac77c894",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Suite A v1.1 para despliegue Docker Hub facutolaba/*:0.3.0, gateway http://localhost:8066, Eureka :8065. 7 pasos: A-01, PREP-01, PREP-02, A-02, A-03, A-04, A-05. Login requiere username y password; los tokens se generan dinámicamente. La ejecución de PREP-01 inserta un CLIENTE temporal en Security DB. No incluir contraseñas ni JWT en capturas/exportaciones. Validación estática realizada 2026-11-02; HTTP 401 sin JWT ya observado por el usuario mediante curl. Los demás resultados deben ejecutarse localmente."
+  },
+  "item": [
+    {
+      "name": "00 · Credenciales y preparación (en orden)",
+      "description": "Primero ejecutar estas tres peticiones. A-01 forma parte de las cinco pruebas; las otras dos permiten disponer de JWT CLIENTE real.",
+      "item": [
+        {
+          "name": "A-01 | Login ADMIN - JWT RS256 (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/auth/login"
+            },
+            "description": "Inicia sesión como ADMIN con username/password. Verifica 200, tokenType=Bearer y estructura JWT; guarda aTokenAdmin en variables de módulo. Se requiere un usuario ADMIN ya provisionado. Completar aAdminUsername y aAdminPassword antes de ejecutarla.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{aAdminUsername}}\",\n  \"password\": \"{{aAdminPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const username = pm.collectionVariables.get('aAdminUsername');",
+                  "const password = pm.collectionVariables.get('aAdminPassword');",
+                  "if (!username || !password) throw new Error('Configura aAdminUsername y aAdminPassword en las variables de esta colección antes de ejecutar A-01');",
+                  "pm.collectionVariables.unset('aTokenAdmin');",
+                  "pm.collectionVariables.unset('aTamperedToken');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('A-01 | HTTP 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('A-01 | tokenType es Bearer', function () { pm.expect(data.tokenType).to.eql('Bearer'); });",
+                  "    pm.test('A-01 | accessToken tiene formato JWT', function () {",
+                  "        pm.expect(data.accessToken).to.be.a('string');",
+                  "        pm.expect(data.accessToken.split('.')).to.have.lengthOf(3);",
+                  "    });",
+                  "    if (typeof data.accessToken === 'string' && data.accessToken.split('.').length === 3) {",
+                  "        pm.collectionVariables.set('aTokenAdmin', data.accessToken);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PREP-01 | Crear CLIENTE temporal (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/auth/register"
+            },
+            "description": "Prepara una identidad CLIENTE real para demostrar el rechazo 403. Crea usuario/correo únicos en cada ejecución; captura aClientUsername. Esta petición modifica la DB de Security añadiendo una cuenta de prueba (no borrado automático).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{aClientUsername}}\",\n  \"email\": \"{{aClientEmail}}\",\n  \"password\": \"{{aClientPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const id = Date.now().toString(36) + Math.floor(Math.random() * 1000000).toString(36);",
+                  "pm.collectionVariables.set('aClientUsername', 'clientea_' + id);",
+                  "pm.collectionVariables.set('aClientEmail', 'clientea_' + id + '@example.com');",
+                  "pm.collectionVariables.unset('aTokenCliente');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('PREP-01 | HTTP 201', function () { pm.expect(pm.response.code).to.eql(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('PREP-01 | Rol CLIENTE forzado por el registro público', function () { pm.expect(data.role).to.eql('CLIENTE'); });",
+                  "    pm.test('PREP-01 | Username creado coincide', function () { pm.expect(data.username).to.eql(pm.collectionVariables.get('aClientUsername')); });",
+                  "    if (data.id) pm.collectionVariables.set('aClientId', String(data.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PREP-02 | Login CLIENTE temporal (200)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/auth/login"
+            },
+            "description": "Recupera el token del CLIENTE creado en PREP-01 y lo guarda como aTokenCliente. Requiere ejecutar la petición anterior primero.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{aClientUsername}}\",\n  \"password\": \"{{aClientPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('aClientUsername')) throw new Error('Ejecuta PREP-01 para crear un cliente antes del login');",
+                  "pm.collectionVariables.unset('aTokenCliente');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('PREP-02 | HTTP 200', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('PREP-02 | Token CLIENTE válido en respuesta', function () {",
+                  "        pm.expect(data.tokenType).to.eql('Bearer');",
+                  "        pm.expect(data.accessToken).to.be.a('string');",
+                  "        pm.expect(data.accessToken.split('.')).to.have.lengthOf(3);",
+                  "    });",
+                  "    if (typeof data.accessToken === 'string' && data.accessToken.split('.').length === 3)",
+                  "        pm.collectionVariables.set('aTokenCliente', data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 · Demostración integrante A · JWT y RBAC",
+      "description": "Ejecutar después de la preparación: A-02, A-03, A-04, A-05.",
+      "item": [
+        {
+          "name": "A-02 | Sin Authorization en ruta protegida (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/couriers"
+            },
+            "description": "Prueba de autenticación. SIN Authorization. La ruta GET /couriers exige ADMIN y debe rechazarse en Gateway antes del enrutamiento."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('A-02 | HTTP 401 por token ausente', function () { pm.expect(pm.response.code).to.eql(401); });",
+                  "if (pm.response.code === 401) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('A-02 | JSON de Gateway (401)', function () {",
+                  "        pm.expect(data.status).to.eql(401);",
+                  "        pm.expect(data.error).to.eql('Unauthorized');",
+                  "        pm.expect(data.mensaje).to.be.a('string');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A-03 | JWT ADMIN con firma alterada (401)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aTamperedToken}}",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/couriers"
+            },
+            "description": "Prueba criptográfica. A partir del token real de ADMIN, modifica un carácter de la FIRMA (tercer segmento). El cuerpo y el header quedan iguales; Gateway debe rechazarlo con 401."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw = pm.collectionVariables.get('aTokenAdmin');",
+                  "if (!raw || raw.split('.').length !== 3) throw new Error('Ejecuta A-01 para obtener el JWT ADMIN antes de A-03');",
+                  "const parts = raw.split('.');",
+                  "const signature = parts[2];",
+                  "if (!signature || signature.length < 10) throw new Error('Firma JWT ausente o inesperada');",
+                  "parts[2] = (signature.charAt(0) === 'A' ? 'B' : 'A') + signature.substring(1);",
+                  "pm.collectionVariables.set('aTamperedToken',parts.join('.'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('A-03 | HTTP 401 por firma adulterada', function () { pm.expect(pm.response.code).to.eql(401); });",
+                  "if (pm.response.code === 401) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('A-03 | JSON de Gateway (401)', function () {",
+                  "        pm.expect(data.status).to.eql(401);",
+                  "        pm.expect(data.error).to.eql('Unauthorized');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A-04 | CLIENTE intenta asignación ADMIN (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aTokenCliente}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/shipments/{{aDemoShipmentId}}/repartidor"
+            },
+            "description": "Prueba RBAC perimetral. El token CLIENTE es real y válido, pero la ruta de asignación requiere rol ADMIN. Usa UUIDs ficticios válidos; no hace falta que existan porque Gateway debe rechazar ANTES de llegar a Shipment. No modifica datos.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"repartidorId\": \"{{aDemoCourierId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw = pm.collectionVariables.get('aTokenCliente');",
+                  "if (!raw || raw.split('.').length !== 3) throw new Error('Ejecuta PREP-01 y PREP-02 para disponer de JWT CLIENTE válido antes de A-04');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('A-04 | HTTP 403 por rol CLIENTE', function () { pm.expect(pm.response.code).to.eql(403); });",
+                  "if (pm.response.code === 403) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('A-04 | Respuesta 403 del manejador de Gateway', function () {",
+                  "        pm.expect(data.status).to.eql(403);",
+                  "        pm.expect(data.error).to.eql('Forbidden');",
+                  "        pm.expect(data.mensaje).to.eql('No tiene permisos para realizar esta operación');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A-05 | ADMIN consulta lista Courier por Gateway (200)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{aTokenAdmin}}",
+                "type": "text"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "url": {
+              "raw": "{{aBaseUrl}}/api/v1/couriers"
+            },
+            "description": "Prueba positiva de extremo a extremo de Gateway: el JWT ADMIN es validado, se convierte a ROLE_ADMIN, aplica RBAC, resuelve lb://COURIER-SERVICE, quita prefijo y alcanza GET /couriers. Espera 200 y lista JSON (puede estar vacía)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const raw = pm.collectionVariables.get('aTokenAdmin');",
+                  "if (!raw || raw.split('.').length !== 3) throw new Error('Ejecuta A-01 para tener token ADMIN antes de A-05');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('A-05 | HTTP 200 como ADMIN', function () { pm.expect(pm.response.code).to.eql(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.test('A-05 | Courier devuelve JSON lista', function () { pm.expect(data).to.be.an('array'); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "aBaseUrl",
+      "value": "http://localhost:8066",
+      "type": "string",
+      "description": "URL local de API Gateway"
+    },
+    {
+      "key": "aAdminUsername",
+      "value": "admin",
+      "type": "string",
+      "description": "Usuario ADMIN real (el login usa username; no email). Puede no ser admin si el usuario fue provisionado con otro nombre."
+    },
+    {
+      "key": "aAdminPassword",
+      "value": "",
+      "type": "string",
+      "description": "Configurar solo localmente. No compartir ni exportar su valor."
+    },
+    {
+      "key": "aClientUsername",
+      "value": "",
+      "type": "string",
+      "description": "Generado automáticamente por PREP-01"
+    },
+    {
+      "key": "aClientEmail",
+      "value": "",
+      "type": "string",
+      "description": "Generado automáticamente por PREP-01"
+    },
+    {
+      "key": "aClientPassword",
+      "value": "",
+      "type": "string",
+      "description": "Contraseña ficticia de cuenta de pruebas; cambiar fuera de laboratorio"
+    },
+    {
+      "key": "aTokenAdmin",
+      "value": "",
+      "type": "string",
+      "description": "Generado por scripts. No compartir ni exportar la colección con el token guardado."
+    },
+    {
+      "key": "aTokenCliente",
+      "value": "",
+      "type": "string",
+      "description": "Generado por scripts. No compartir ni exportar la colección con el token guardado."
+    },
+    {
+      "key": "aTamperedToken",
+      "value": "",
+      "type": "string",
+      "description": "Token admin con firma modificada generado por A-03"
+    },
+    {
+      "key": "aClientId",
+      "value": "",
+      "type": "string",
+      "description": "UUID del usuario temporal"
+    },
+    {
+      "key": "aDemoShipmentId",
+      "value": "",
+      "type": "string",
+      "description": "UUID de forma válida; no requiere existencia para 403"
+    },
+    {
+      "key": "aDemoCourierId",
+      "value": "",
+      "type": "string",
+      "description": "UUID de forma válida; no requiere existencia para 403"
+    }
+  ],
+  "auth": {
+    "type": "noauth"
+  }
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "reference": "docker.io/library/eclipse-temurin:25-jre",
+    "digest": "sha256:ecdc0adb37bde1a281c4d245a3cd535004b1fc8322d560f5b09463b248c81df0"
+  },
+  {
+    "reference": "docker.io/library/eclipse-temurin:25-jdk",
+    "digest": "sha256:83f4a7fc27df94dcc7b8de04d14cbbba8da14406f921e966969c3b09000aa507"
+  },
+  {
+    "reference": "docker.io/library/maven:3-eclipse-temurin-25",
+    "digest": "sha256:047a82fc82c613266cfb1b66fd920be9c8ba51fd67edc68245e4542768f45e36"
+  }
+]

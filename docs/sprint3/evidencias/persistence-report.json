@@ -1,0 +1,12 @@
+{
+  "restarted": [
+    "security-service",
+    "shipment-db"
+  ],
+  "admin_count_before": 1,
+  "admin_count_after": 1,
+  "same_admin_id": true,
+  "shipment_rows_before": 10023,
+  "shipment_rows_after": 10023,
+  "authenticated_gateway_after_restart": true
+}

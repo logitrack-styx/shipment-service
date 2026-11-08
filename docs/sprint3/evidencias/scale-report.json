@@ -1,0 +1,26 @@
+{
+  "dataset_rows": 10017,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "measurement_scope": "Host Python allocation while capturing mysql CLI output; not Java heap or server memory",
+  "samples": [
+    {
+      "query": "unbounded-baseline",
+      "rows": 10017,
+      "stdout_bytes": 330561,
+      "median_ms_including_docker_exec": 546.9,
+      "host_capture_peak_bytes": 382971
+    },
+    {
+      "query": "bounded-page",
+      "rows": 100,
+      "stdout_bytes": 3300,
+      "median_ms_including_docker_exec": 425.02,
+      "host_capture_peak_bytes": 49290
+    }
+  ],
+  "http_page": {
+    "status": 200,
+    "rows": 100,
+    "total": "10017"
+  }
+}

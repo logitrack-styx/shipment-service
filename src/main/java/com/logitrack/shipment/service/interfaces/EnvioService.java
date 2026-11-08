@@ -17,6 +17,15 @@ import com.logitrack.shipment.enums.EstadoEnvio;
  * @author dominox45
  */
 public interface EnvioService {
+    /**
+     * @param estado filtro opcional
+     * @param jwt identidad ADMIN
+     * @param page página desde cero
+     * @param size tamaño de 1 a 100
+     * @return página limitada de envíos
+     */
+    org.springframework.data.domain.Page<EnvioResponse> listar(EstadoEnvio estado, Jwt jwt, int page, int size);
+
 
     /**
      * Consulta un envío por su identificador.

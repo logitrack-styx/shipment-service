@@ -1,0 +1,35 @@
+#78 exporting config sha256:06b6a29ade5cdf8141d9ba896cfe988c3d8bc1713148959753fc93475c8218bc 0.1s done
+#78 exporting attestation manifest sha256:c857f7d0e28178e2c54aa63f870f1c2bfe8365ef9cb57ceabbd7612c069e6272
+#78 exporting attestation manifest sha256:c857f7d0e28178e2c54aa63f870f1c2bfe8365ef9cb57ceabbd7612c069e6272 0.1s done
+#78 exporting manifest list sha256:0d3df771b787f1fcb521be725de8c8e9715024d72b95c0ff46bb911fb7370656 0.1s done
+#78 naming to docker.io/logitrack/security-service:s3-0f7e13b8a291
+#78 naming to docker.io/logitrack/security-service:s3-0f7e13b8a291 done
+#78 unpacking to docker.io/logitrack/security-service:s3-0f7e13b8a291 0.0s done
+#78 DONE 0.5s
+
+#75 [courier-service] exporting to image
+#75 ...
+
+#79 [security-service] resolving provenance for metadata file
+#79 DONE 0.1s
+
+#75 [courier-service] exporting to image
+#75 exporting layers 9.0s done
+#75 exporting manifest sha256:7cbe28a83a8657fb2d90c9cd14bf3beb54e101b58615979c496558c6fee6b571 0.0s done
+#75 exporting config sha256:1efcbc0aea3b6c92368d926ab11989dd71f7de44c3e1fa15b65678543d9d6c58 0.0s done
+#75 exporting attestation manifest sha256:0d96cdb93ad2ee57443ff946f0dbe8f3131dca2d1a4c162f8c59ff5d9c8dbb3f 0.0s done
+#75 exporting manifest list sha256:1e6e1f4cab7aa349af6392c22c1a0591cd356453d47233f59a2737d7b4e2808b 0.0s done
+#75 naming to docker.io/logitrack/courier-service:s3-33b6bf83a787
+#75 naming to docker.io/logitrack/courier-service:s3-33b6bf83a787 done
+#75 unpacking to docker.io/logitrack/courier-service:s3-33b6bf83a787
+#75 unpacking to docker.io/logitrack/courier-service:s3-33b6bf83a787 0.8s done
+#75 DONE 9.9s
+
+#80 [courier-service] resolving provenance for metadata file
+#80 DONE 0.1s
+ Image logitrack/courier-service:s3-33b6bf83a787 Built
+ Image logitrack/shipment-service:s3-ca2773902ef2 Built
+ Image logitrack/api-gateway:s3-a3451c6d22e0 Built
+ Image logitrack/security-service:s3-0f7e13b8a291 Built
+ Image logitrack/config-server:s3-f80b03c3e4d5 Built
+ Image logitrack/eureka-server:s3-b32e8f3bf0e1 Built

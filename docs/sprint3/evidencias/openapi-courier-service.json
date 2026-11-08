@@ -1,0 +1,685 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LogiTrack Courier API",
+    "description": "ADMIN gestiona perfiles; REPARTIDOR consulta y actualiza su propio perfil. Errores 400, 401, 403, 404, 409 y 503 en JSON.",
+    "version": "3.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8082",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Couriers",
+      "description": "Perfiles log\u00edsticos; ADMIN administra, REPARTIDOR opera sobre su propio UUID"
+    }
+  ],
+  "paths": {
+    "/couriers/{id}": {
+      "get": {
+        "tags": [
+          "Couriers"
+        ],
+        "summary": "Consultar perfil (ADMIN o propietario)",
+        "operationId": "findById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Entrada o paginaci\u00f3n inv\u00e1lida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente o inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol o propietario no autorizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Perfil inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Perfil duplicado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Autoridad de identidad no disponible",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Couriers"
+        ],
+        "summary": "Actualizar nombre y veh\u00edculo (ADMIN o propietario)",
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourierUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Entrada o paginaci\u00f3n inv\u00e1lida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente o inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol o propietario no autorizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Perfil inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Perfil duplicado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Autoridad de identidad no disponible",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/couriers": {
+      "get": {
+        "tags": [
+          "Couriers"
+        ],
+        "summary": "Listar perfiles por estado con page y size, m\u00e1ximo 100; totales en headers (ADMIN)",
+        "operationId": "findAll",
+        "parameters": [
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVO",
+                "INACTIVO"
+              ]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Entrada o paginaci\u00f3n inv\u00e1lida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourierResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente o inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourierResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol o propietario no autorizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourierResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Perfil inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourierResponse"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Perfil duplicado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourierResponse"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Autoridad de identidad no disponible",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourierResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Couriers"
+        ],
+        "summary": "Crear perfil para un usuario REPARTIDOR existente (ADMIN)",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourierRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Entrada o paginaci\u00f3n inv\u00e1lida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente o inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol o propietario no autorizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Perfil inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Perfil duplicado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Autoridad de identidad no disponible",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/couriers/{id}/estado": {
+      "patch": {
+        "tags": [
+          "Couriers"
+        ],
+        "summary": "Cambiar estado operativo (ADMIN)",
+        "operationId": "cambiarEstado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourierEstadoRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "description": "Entrada o paginaci\u00f3n inv\u00e1lida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente o inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol o propietario no autorizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Perfil inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Perfil duplicado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Autoridad de identidad no disponible",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourierResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/couriers/{id}/disponibilidad": {
+      "get": {
+        "tags": [
+          "Couriers"
+        ],
+        "summary": "Consultar disponibilidad para asignaci\u00f3n (ADMIN o propietario)",
+        "operationId": "disponibilidad",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Entrada o paginaci\u00f3n inv\u00e1lida",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "JWT ausente o inv\u00e1lido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Rol o propietario no autorizado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Perfil inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Perfil duplicado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Autoridad de identidad no disponible",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CourierUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2
+          },
+          "tipoVehiculo": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 2
+          }
+        },
+        "required": [
+          "nombre",
+          "tipoVehiculo"
+        ]
+      },
+      "CourierResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "tipoVehiculo": {
+            "type": "string"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "ACTIVO",
+              "INACTIVO"
+            ]
+          }
+        }
+      },
+      "CourierRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombre": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 2
+          },
+          "tipoVehiculo": {
+            "type": "string",
+            "maxLength": 30,
+            "minLength": 2
+          }
+        },
+        "required": [
+          "nombre",
+          "tipoVehiculo",
+          "userId"
+        ]
+      },
+      "CourierEstadoRequest": {
+        "type": "object",
+        "properties": {
+          "estado": {
+            "type": "string",
+            "enum": [
+              "ACTIVO",
+              "INACTIVO"
+            ]
+          }
+        },
+        "required": [
+          "estado"
+        ]
+      },
+      "DisponibilidadResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "disponible": {
+            "type": "boolean"
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "ACTIVO",
+              "INACTIVO"
+            ]
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT RS256"
+      }
+    }
+  }
+}

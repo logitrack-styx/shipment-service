@@ -1,0 +1,409 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LogiTrack Security API",
+    "version": "Sprint 3"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Usuarios",
+      "description": "Operaciones de administraci\u00f3n y consulta de usuarios"
+    },
+    {
+      "name": "Autenticaci\u00f3n",
+      "description": "Endpoints para el registro de usuarios y la autenticaci\u00f3n"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Crear un usuario",
+        "description": "Registra un usuario nuevo. Requiere autenticaci\u00f3n y el rol ADMIN.",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario creado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inv\u00e1lidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "No tiene permisos de administrador"
+          },
+          "409": {
+            "description": "El usuario ya existe"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Autenticaci\u00f3n"
+        ],
+        "summary": "Registrar un usuario",
+        "description": "Registra un nuevo usuario en el sistema utilizando los datos proporcionados.",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Usuario registrado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inv\u00e1lidos"
+          },
+          "409": {
+            "description": "El usuario ya existe"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Autenticaci\u00f3n"
+        ],
+        "summary": "Iniciar sesi\u00f3n",
+        "description": "Autentica al usuario mediante sus credenciales y devuelve la respuesta de autenticaci\u00f3n.",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Autenticaci\u00f3n exitosa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos de entrada inv\u00e1lidos"
+          },
+          "401": {
+            "description": "Credenciales incorrectas"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "operationId": "getById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": [
+          "Usuarios"
+        ],
+        "summary": "Consultar el usuario autenticado",
+        "description": "Obtiene los datos del usuario correspondiente al identificador contenido en el JWT.",
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "description": "Usuario consultado correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inv\u00e1lido o expirado"
+          },
+          "404": {
+            "description": "Usuario no encontrado"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UsuarioRequest": {
+        "type": "object",
+        "description": "Datos necesarios para crear un usuario desde la administraci\u00f3n",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Nombre de usuario",
+            "example": "repartidor01",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Correo electr\u00f3nico del usuario",
+            "example": "repartidor@logitrack.com",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Contrase\u00f1a inicial del usuario",
+            "example": "ClaveSegura123!",
+            "minLength": 1
+          },
+          "role": {
+            "type": "string",
+            "description": "Rol que tendr\u00e1 el usuario",
+            "enum": [
+              "ADMIN",
+              "CLIENTE",
+              "REPARTIDOR"
+            ],
+            "example": "REPARTIDOR"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "role",
+          "username"
+        ]
+      },
+      "UsuarioResponse": {
+        "type": "object",
+        "description": "Informaci\u00f3n de un usuario registrado en LogiTrack",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identificador \u00fanico del usuario",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "username": {
+            "type": "string",
+            "description": "Nombre de usuario",
+            "example": "repartidor01"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Correo electr\u00f3nico del usuario",
+            "example": "repartidor@logitrack.com"
+          },
+          "role": {
+            "type": "string",
+            "description": "Rol asignado al usuario dentro del sistema",
+            "enum": [
+              "ADMIN",
+              "CLIENTE",
+              "REPARTIDOR"
+            ],
+            "example": "REPARTIDOR"
+          },
+          "eneable": {
+            "type": "boolean",
+            "description": "Indica si la cuenta del usuario est\u00e1 habilitada",
+            "example": true
+          },
+          "nombre": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "eneable",
+          "id",
+          "role",
+          "username"
+        ]
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "description": "Datos para registrar una nueva cuenta de usuario",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Nombre de usuario que se utilizar\u00e1 para identificarse",
+            "example": "nuevoUsuario",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Direcci\u00f3n de correo electr\u00f3nico v\u00e1lida del usuario",
+            "example": "usuario@ejemplo.com",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Contrase\u00f1a para crear la cuenta",
+            "example": "MiPassword123!",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "username"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "description": "Datos necesarios para iniciar sesi\u00f3n",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Nombre de usuario registrado en el sistema",
+            "example": "usuario123"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email de login seg\u00fan contrato Sprint 2; alternativo a username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "Contrase\u00f1a del usuario",
+            "example": "MiPassword123!",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "description": "Respuesta de autenticaci\u00f3n con el token de acceso",
+        "properties": {
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Vigencia del token de acceso en segundos",
+            "example": 3600
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Token JWT utilizado para autenticar las solicitudes posteriores",
+            "example": "<JWT RS256 devuelto por login>"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "Tipo de token utilizado para la autenticaci\u00f3n",
+            "example": "Bearer"
+          }
+        },
+        "required": [
+          "accessToken",
+          "tokenType"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT RS256"
+      }
+    }
+  }
+}
