@@ -26,6 +26,18 @@ public interface EnvioService {
      */
     org.springframework.data.domain.Page<EnvioResponse> listar(EstadoEnvio estado, Jwt jwt, int page, int size);
 
+    /**
+     * Lists only shipments owned by the authenticated customer.
+     * @author dominox45
+     */
+    org.springframework.data.domain.Page<EnvioResponse> listarPropios(EstadoEnvio estado, Jwt jwt, int page, int size);
+
+    /**
+     * Lists only shipments assigned to the authenticated courier.
+     * @author dominox45
+     */
+    org.springframework.data.domain.Page<EnvioResponse> listarAsignados(EstadoEnvio estado, Jwt jwt, int page, int size);
+
 
     /**
      * Consulta un envío por su identificador.

@@ -83,6 +83,22 @@ class EnvioServiceImplTest {
     }
 
     @Test
+    void filtraListadosPersonalesPorIdentidadYEstado() {
+        var pagina = com.logitrack.shipment.config.BoundedPage.of(1, 10);
+        var courierId = UUID.randomUUID();
+        var courier = crearJwt(courierId, "REPARTIDOR");
+        when(envioRepository.findByClienteId(clienteId, pagina))
+                .thenReturn(org.springframework.data.domain.Page.empty(pagina));
+        when(envioRepository.findByRepartidorIdAndEstado(courierId, EstadoEnvio.EN_RUTA, pagina))
+                .thenReturn(org.springframework.data.domain.Page.empty(pagina));
+
+        assertEquals(1, envioService.listarPropios(null, jwtCliente, 1, 10).getNumber());
+        assertEquals(1, envioService.listarAsignados(EstadoEnvio.EN_RUTA, courier, 1, 10).getNumber());
+        assertThrows(AccessDeniedException.class, () -> envioService.listarPropios(null, courier, 0, 20));
+        assertThrows(AccessDeniedException.class, () -> envioService.listarAsignados(null, jwtCliente, 0, 20));
+    }
+
+    @Test
     void debeRegistrarEnvioPendienteYPublicarEventoInicial() {
         when(envioRepository.save(any(Envio.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));

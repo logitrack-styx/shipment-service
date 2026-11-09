@@ -45,6 +45,28 @@ public class EnvioServiceImpl implements EnvioService {
                 .map(EnvioResponse::from);
     }
 
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<EnvioResponse> listarPropios(EstadoEnvio estado, Jwt jwt, int page, int size) {
+        if (!"CLIENTE".equals(obtenerRol(jwt))) throw new AccessDeniedException("Solo CLIENTE puede listar sus envíos");
+        var clienteId = obtenerUsuarioId(jwt);
+        var pageable = com.logitrack.shipment.config.BoundedPage.of(page, size);
+        return (estado == null ? envioRepository.findByClienteId(clienteId, pageable)
+                : envioRepository.findByClienteIdAndEstado(clienteId, estado, pageable)).map(EnvioResponse::from);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<EnvioResponse> listarAsignados(EstadoEnvio estado, Jwt jwt, int page, int size) {
+        if (!"REPARTIDOR".equals(obtenerRol(jwt))) throw new AccessDeniedException("Solo REPARTIDOR puede listar sus entregas");
+        var repartidorId = obtenerUsuarioId(jwt);
+        var pageable = com.logitrack.shipment.config.BoundedPage.of(page, size);
+        return (estado == null ? envioRepository.findByRepartidorId(repartidorId, pageable)
+                : envioRepository.findByRepartidorIdAndEstado(repartidorId, estado, pageable)).map(EnvioResponse::from);
+    }
+
     private final EnvioRepository envioRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final com.logitrack.shipment.repository.ClienteRepository clienteRepository;
