@@ -6,4 +6,10 @@ Shipment bloquea la fila del envío durante la creación para serializar dos sol
 
 El PUT conserva su actualización condicional. Si un PUT asigna el envío después de que se acepta un POST, el consumidor deberá aplicar la misma condición antes de confirmar la asignación asíncrona.
 
+Para activar el transporte en Shipment, configurá `ASSIGNMENT_MESSAGING_ENABLED=true` y las variables `SPRING_RABBITMQ_*` del entorno. El worker toma una concesión de base de datos antes de publicar y libera la transacción antes de esperar la confirmación del broker. La concesión vence a los 60 segundos. Se reintenta hasta cinco veces y se conserva el mismo identificador de evento para que Courier pueda deduplicar. Si se agotan los intentos o Courier no responde dentro de cinco minutos después de la confirmación, la solicitud queda FAILED.
+
+La cola durable `shipment.assignment.eligibility.v1` recibe las respuestas de elegibilidad. Las respuestas inválidas o que agotan los reintentos del consumidor van a `shipment.assignment.eligibility.v1.dlq`. Shipment confirma la recepción después de persistir el resultado y conserva el estado de una operación terminal ante una respuesta tardía.
+
 La verificación local con Java 25 y Docker usa `mvnw.cmd -o "-Dtest=EnvioRepositoryTest,WebMvcSliceSmokeTest,SecurityContractTest" test`.
+
+Con los repositorios Shipment y Courier en directorios hermanos, ejecutá `pwsh -File scripts/test-assignment-messaging.ps1` desde Shipment. El script construye ambas aplicaciones, levanta MySQL y RabbitMQ aislados, y usa un JWT firmado con una clave efímera. Verifica que un reintento durante la caída del broker conserva la operación, que la recuperación actualiza el envío y que un repartidor inactivo recibe un rechazo. El entorno se elimina al terminar.

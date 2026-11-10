@@ -1,4 +1,18 @@
 spring:
+  rabbitmq:
+    connection-timeout: 3s
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        default-requeue-rejected: false
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 500ms
+          multiplier: 2
   application:
     name: shipment-service
 
@@ -27,6 +41,10 @@ spring:
 server:
   port: ${SERVER_PORT:8083}
 
+shipment:
+  assignment:
+    messaging-enabled: ${ASSIGNMENT_MESSAGING_ENABLED:false}
+
 security:
   jwt:
     issuer: ${JWT_ISSUER:logitrack-security}
@@ -50,6 +68,8 @@ management:
         enabled: true
 
   health:
+    rabbit:
+      enabled: false
     livenessstate:
       enabled: true
     readinessstate:

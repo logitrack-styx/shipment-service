@@ -1,0 +1,71 @@
+x-mysql: &mysql
+  image: mysql:8.4
+  healthcheck:
+    test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_ROOT_PASSWORD" mysql -h127.0.0.1 -uroot -e "SELECT 1"']
+    interval: 3s
+    timeout: 5s
+    retries: 30
+
+x-app: &app
+  ASSIGNMENT_MESSAGING_ENABLED: 'true'
+  SPRING_RABBITMQ_HOST: rabbit
+  SPRING_RABBITMQ_USERNAME: assignment_test
+  SPRING_RABBITMQ_PASSWORD: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+  SPRING_CLOUD_CONFIG_ENABLED: 'false'
+  EUREKA_CLIENT_ENABLED: 'false'
+  JWT_PUBLIC_KEY_LOCATION: file:/run/keys/public.pem
+  DB_USERNAME: assignment_test
+  DB_PASSWORD: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+
+services:
+  rabbit:
+    image: rabbitmq:4-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: assignment_test
+      RABBITMQ_DEFAULT_PASS: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+    healthcheck:
+      test: [CMD, nc, -z, 127.0.0.1, '5672']
+      interval: 3s
+      timeout: 8s
+      retries: 20
+  shipment-db:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: shipment_test
+      MYSQL_USER: assignment_test
+      MYSQL_PASSWORD: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+      MYSQL_ROOT_PASSWORD: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+  courier-db:
+    <<: *mysql
+    environment:
+      MYSQL_DATABASE: courier_test
+      MYSQL_USER: assignment_test
+      MYSQL_PASSWORD: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+      MYSQL_ROOT_PASSWORD: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
+  shipment:
+    build: .
+    environment:
+      <<: *app
+      DB_URL: jdbc:mysql://shipment-db:3306/shipment_test
+    volumes:
+      - '${ASSIGNMENT_TEST_KEY_DIR:?Set the public key directory}:/run/keys:ro'
+    ports:
+      - '127.0.0.1::8083'
+    depends_on:
+      shipment-db:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
+  courier:
+    build: ${COURIER_SOURCE_DIR:-../courier-service}
+    environment:
+      <<: *app
+      DB_URL: jdbc:mysql://courier-db:3306/courier_test
+      LOGITRACK_CLIENTS_SECURITY_BASE_URL: http://127.0.0.1:9
+    volumes:
+      - '${ASSIGNMENT_TEST_KEY_DIR:?Set the public key directory}:/run/keys:ro'
+    depends_on:
+      courier-db:
+        condition: service_healthy
+      rabbit:
+        condition: service_healthy
