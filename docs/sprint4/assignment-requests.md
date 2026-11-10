@@ -11,3 +11,5 @@ Para activar el transporte en Shipment, configurá `ASSIGNMENT_MESSAGING_ENABLED
 La cola durable `shipment.assignment.eligibility.v1` recibe las respuestas de elegibilidad. Las respuestas inválidas o que agotan los reintentos del consumidor van a `shipment.assignment.eligibility.v1.dlq`. Shipment confirma la recepción después de persistir el resultado y conserva el estado de una operación terminal ante una respuesta tardía.
 
 La verificación local con Java 25 y Docker usa `mvnw.cmd -o "-Dtest=EnvioRepositoryTest,WebMvcSliceSmokeTest,SecurityContractTest" test`.
+
+Con los repositorios Shipment y Courier en directorios hermanos, ejecutá `pwsh -File scripts/test-assignment-messaging.ps1` desde Shipment. El script construye ambas aplicaciones, levanta MySQL y RabbitMQ aislados, y usa un JWT firmado con una clave efímera. Verifica que un reintento durante la caída del broker conserva la operación, que la recuperación actualiza el envío y que un repartidor inactivo recibe un rechazo. El entorno se elimina al terminar.
