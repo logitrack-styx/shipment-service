@@ -35,14 +35,24 @@ function Invoke-Compose {
     if ($LASTEXITCODE -ne 0) { throw "Compose failed ($LASTEXITCODE)." }
 }
 
-function Post-Json($path, $body, $headers = @{}) {
+function Post-Json($path, $body, $headers = @{}, $expected = 201) {
     $request = @{ Method = 'Post'; ContentType = 'application/json'; Headers = $headers
         Body = $body | ConvertTo-Json -Depth 5 -Compress }
-    Invoke-RestMethod "$base$path" @request
+    $response = Invoke-RestMethod "$base$path" @request -StatusCodeVariable httpCode -SkipHttpErrorCheck
+    if ($httpCode -ne $expected) { throw "POST $path returned $httpCode instead of $expected." }
+    $response
+}
+
+function Send-Json($method, $path, $body, $headers) {
+    $response = Invoke-RestMethod "$base$path" -Method $method -Headers $headers -ContentType 'application/json' -Body (
+        $body | ConvertTo-Json -Depth 5 -Compress
+    ) -StatusCodeVariable httpCode
+    if ($httpCode -ne 200) { throw "$method $path returned $httpCode instead of 200." }
+    $response
 }
 
 function Get-Token($username, $password) {
-    $result = Post-Json '/auth/login' @{ username = $username; password = $password }
+    $result = Post-Json '/auth/login' @{ username = $username; password = $password } @{} 200
     @{ Authorization = "Bearer $($result.accessToken)" }
 }
 
@@ -59,6 +69,12 @@ function Wait-Assignment($id, $operation) {
 try {
     Invoke-Compose config --quiet
     Invoke-Compose up --build -d --wait --wait-timeout 240
+    $config = Invoke-Compose exec -T api-gateway curl --fail --silent http://config-server:8888/payment-service/default |
+        ConvertFrom-Json
+    $paymentProperties = $config.propertySources | Where-Object { $_.source.PSObject.Properties['payments.adapter'] }
+    if (-not $paymentProperties -or $paymentProperties.source.'payments.environment' -ne '${MP_ENV:TEST}') {
+        throw 'Config Server did not load the Payment TEST properties.'
+    }
     $gatewayPort = (Invoke-Compose port api-gateway 8066).Split(':')[-1]
     $mailpitPort = (Invoke-Compose port mailpit 8025).Split(':')[-1]
     $base = "http://127.0.0.1:$gatewayPort/api/v1"
@@ -83,6 +99,13 @@ try {
     $secondShipment = Post-Json '/shipments' @{
         origen = $address; destino = $address; peso = 2; ancho = 10; alto = 10; largo = 10
     } $customer
+    $null = Post-Json '/auth/register' @{
+        username = 'other-smoke'; email = 'other-smoke@example.invalid'; password = $password
+    }
+    $other = Get-Token 'other-smoke' $password
+    $otherShipment = Post-Json '/shipments' @{
+        origen = $address; destino = $address; peso = 3; ancho = 10; alto = 10; largo = 10
+    } $other
 
     $origin = 'http://localhost:5173'
     foreach ($path in '/payments/quotes', '/payments/checkouts', "/shipments/$($shipment.id)/assignment-requests") {
@@ -113,13 +136,18 @@ try {
     if ($pages -notcontains $shipment.id -or $pages -notcontains $secondShipment.id) {
         throw 'The owner shipment pages did not return two distinct shipments.'
     }
+    $otherPage = Invoke-WebRequest "$base/shipments/mine?size=1" -Headers $other
+    $otherRows = @($otherPage.Content | ConvertFrom-Json)
+    if ($otherPage.Headers['X-Total-Count'] -notcontains '1' -or $otherRows[0].id -ne $otherShipment.id) {
+        throw 'Shipment list did not isolate owners.'
+    }
     $denied = Invoke-WebRequest "$base/shipments/mine" -Headers $admin -SkipHttpErrorCheck
     $anonymous = Invoke-WebRequest "$base/shipments/mine" -SkipHttpErrorCheck
     if ($denied.StatusCode -ne 403 -or $anonymous.StatusCode -ne 401) { throw 'Shipment list RBAC mismatch.' }
     Write-Output 'Gateway: three CORS preflights, origin rejection, RBAC and two owner pages verified.'
 
     $assignmentHeaders = $admin + @{ 'Idempotency-Key' = [guid]::NewGuid().ToString() }
-    $request = Post-Json "/shipments/$($shipment.id)/assignment-requests" @{ repartidorId = $courier.id } $assignmentHeaders
+    $request = Post-Json "/shipments/$($shipment.id)/assignment-requests" @{ repartidorId = $courier.id } $assignmentHeaders 202
     if ($request.status -ne 'PENDING') { throw 'Assignment was not accepted as PENDING.' }
     Wait-Assignment $shipment.id $request.operationId
     $courierToken = Get-Token 'courier-smoke' $password
@@ -135,7 +163,45 @@ try {
     if ($payment.status -ne 'PENDING' -or $payment.mode -ne 'TEST' -or $payment.amount -ne '3500.00') {
         throw 'The FAKE payment did not match the quote.'
     }
+    $foreignPayment = Invoke-WebRequest "$base/payments/$($checkout.paymentId)" -Headers $other -SkipHttpErrorCheck
+    $unknownRoute = Invoke-WebRequest "$base/payments/not-an-operation" -Headers $admin -SkipHttpErrorCheck
+    $wrongWebhookMethod = Invoke-WebRequest "$base/payments/webhooks/mercadopago" -Headers $admin -SkipHttpErrorCheck
+    if ($foreignPayment.StatusCode -ne 404 -or $unknownRoute.StatusCode -ne 403 -or $wrongWebhookMethod.StatusCode -ne 403) {
+        throw 'Payment ownership or Gateway default-deny mismatch.'
+    }
     Write-Output 'Gateway and Payment: FAKE checkout persisted as TEST/PENDING.'
+
+    $put = Send-Json Put "/shipments/$($secondShipment.id)/repartidor" @{ repartidorId = $courier.id } $admin
+    if ($put.repartidorId -ne $courier.id) { throw 'Legacy PUT assignment failed.' }
+    Write-Output 'Shipment: legacy PUT assignment verified through Gateway and Feign.'
+
+    $self = Invoke-RestMethod "$base/users/me" -Headers $customer
+    $identity = Invoke-RestMethod "$base/users/$($user.id)" -Headers $admin
+    if ($self.role -ne 'CLIENTE' -or $identity.role -ne 'REPARTIDOR') { throw 'Identity contract mismatch.' }
+    $courierList = Invoke-WebRequest "$base/couriers?page=0&size=1" -Headers $admin
+    $courierProfile = Invoke-RestMethod "$base/couriers/$($courier.id)" -Headers $courierToken
+    if ($courierList.Headers['X-Total-Count'] -notcontains '1' -or $courierProfile.id -ne $courier.id) {
+        throw 'Courier list or owner read mismatch.'
+    }
+    $edited = Send-Json Put "/couriers/$($courier.id)" @{ nombre = 'Courier actualizado'; tipoVehiculo = 'Moto' } $courierToken
+    $inactive = Send-Json Patch "/couriers/$($courier.id)/estado" @{ estado = 'INACTIVO' } $admin
+    $availability = Invoke-RestMethod "$base/couriers/$($courier.id)/disponibilidad" -Headers $courierToken
+    if ($edited.tipoVehiculo -ne 'Moto' -or $inactive.estado -ne 'INACTIVO' -or $availability.disponible) {
+        throw 'Courier update, state or availability mismatch.'
+    }
+
+    $global = Invoke-WebRequest "$base/shipments?page=0&size=1" -Headers $admin
+    $shipmentDetail = Invoke-RestMethod "$base/shipments/$($shipment.id)" -Headers $customer
+    $tracked = Invoke-RestMethod "$base/shipments/seguimiento/$($shipmentDetail.codigoSeguimiento)" -Headers $customer
+    $moving = Send-Json Patch "/shipments/$($shipment.id)/estado" @{ estado = 'EN_RUTA' } $courierToken
+    $cancelled = Invoke-WebRequest "$base/shipments/$($otherShipment.id)/cancelacion" -Method Patch -Headers $other
+    if ($global.Headers['X-Total-Count'] -notcontains '3' -or $tracked.id -ne $shipment.id -or
+            $moving.estado -ne 'EN_RUTA' -or $cancelled.StatusCode -ne 204) {
+        throw 'Shipment list, tracking, state or cancellation mismatch.'
+    }
+    $quoteRead = Invoke-RestMethod "$base/payments/quotes/$($quote.quoteId)" -Headers $customer
+    if ($quoteRead.quoteId -ne $quote.quoteId -or $quoteRead.amount -ne $quote.amount) { throw 'Quote read mismatch.' }
+    Write-Output 'Contract coverage: 26 Gateway operations exercised. Signed webhook is verified in Payment tests.'
 
     for ($i = 0; $i -lt 25; $i++) {
         $messages = (Invoke-RestMethod "http://127.0.0.1:$mailpitPort/api/v1/messages").messages
@@ -146,7 +212,7 @@ try {
     Write-Output 'Security and Mailpit: welcome message delivered.'
 } catch {
     Invoke-Compose ps -a
-    Invoke-Compose logs --tail 25 config-server eureka-server api-gateway security-service shipment-service courier-service rabbitmq payment-service mailpit
+    Invoke-Compose logs --tail 100 config-server eureka-server api-gateway security-service shipment-service courier-service rabbitmq payment-service mailpit
     throw
 } finally {
     try { Invoke-Compose down -v } finally {

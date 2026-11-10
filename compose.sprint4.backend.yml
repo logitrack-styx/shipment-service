@@ -16,6 +16,8 @@ services:
 
   eureka-server:
     ports: !reset []
+    environment:
+      EUREKA_SERVER_USE_READ_ONLY_RESPONSE_CACHE: 'false'
 
   api-gateway:
     image: logitrack-s4/api-gateway:local
@@ -24,6 +26,7 @@ services:
       - "127.0.0.1:${S4_GATEWAY_PORT:-8066}:8066"
     environment:
       SECURITY_CORS_ALLOWED_ORIGINS: ${SECURITY_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: '5'
     volumes:
       - "${S4_KEY_DIR:?Set S4_KEY_DIR}/public.pem:/run/secrets/jwt-public.pem:ro"
 
@@ -131,6 +134,7 @@ services:
       EUREKA_SERVER_URL: http://eureka-server:8065/eureka/
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
       EUREKA_INSTANCE_HOSTNAME: payment-service
+      EUREKA_CLIENT_REGISTRY_FETCH_INTERVAL_SECONDS: '5'
       DB_URL: jdbc:mysql://payment-db:3306/logitrack_payment?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
       DB_USERNAME: ${PAYMENT_DB_USERNAME:-payment}
       DB_PASSWORD: ${PAYMENT_DB_PASSWORD:?Set Payment database password}
@@ -161,6 +165,8 @@ services:
       payment-db:
         condition: service_healthy
       eureka-server:
+        condition: service_healthy
+      shipment-service:
         condition: service_healthy
     networks:
       - logitrack-net
