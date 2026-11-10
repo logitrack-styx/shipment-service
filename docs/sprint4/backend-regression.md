@@ -17,7 +17,7 @@ El contrato HTTP cubre 27 operaciones. La prueba Compose usa Gateway con los ser
 - Ejecutar `pwsh -File scripts/test-sprint4-backend.ps1` desde Shipment. El Compose usa proyectos y credenciales efímeros. Ver [configuración](backend-compose.md).
 - Ejecutar `pwsh -File scripts/test-assignment-messaging.ps1` para recuperación de broker, reentrega y DLQ. Las colas son del proyecto de pruebas.
 
-La regresión de Gateway, Courier, Shipment y Payment ejecutó 8, 22, 91 y 12 pruebas respectivamente. Security ejecutó 7 y omitió la prueba SMTP opcional en esa pasada. La entrega SMTP se verificó por separado con Mailpit real. Las pruebas de paginación comprueban tamaño y totales de la respuesta con datos de dos propietarios.
+La regresión de Gateway, Courier, Shipment y Payment ejecutó 8, 22, 91 y 13 pruebas respectivamente. Security ejecutó 7 y omitió la prueba SMTP opcional en esa pasada. La entrega SMTP se verificó por separado con Mailpit real. Las pruebas de paginación comprueban tamaño y totales de la respuesta con datos de dos propietarios.
 
 ## Hitos separados
 

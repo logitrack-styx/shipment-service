@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - develop
+      - 'sprint4/**'
 
 permissions:
   contents: read
