@@ -1,0 +1,197 @@
+name: logitrack-s4-backend
+
+x-rabbit: &rabbit
+  SPRING_RABBITMQ_HOST: rabbitmq
+  SPRING_RABBITMQ_PORT: '5672'
+  ASSIGNMENT_MESSAGING_ENABLED: 'true'
+
+services:
+  config-server:
+    ports: !reset []
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: file:/config/
+    volumes:
+      - "${STYX_CONFIG_DIR:-../styx-config}:/config:ro"
+
+  eureka-server:
+    ports: !reset []
+
+  api-gateway:
+    image: logitrack-s4/api-gateway:local
+    build: ../api-gateway
+    ports: !override
+      - "127.0.0.1:${S4_GATEWAY_PORT:-8066}:8066"
+    environment:
+      SECURITY_CORS_ALLOWED_ORIGINS: ${SECURITY_CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+    volumes:
+      - "${S4_KEY_DIR:?Set S4_KEY_DIR}/public.pem:/run/secrets/jwt-public.pem:ro"
+
+  security-service:
+    image: logitrack-s4/security-service:local
+    build: ../security-service
+    environment:
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      EUREKA_INSTANCE_HOSTNAME: security-service
+      MAIL_NOTIFICATIONS_ENABLED: ${MAIL_NOTIFICATIONS_ENABLED:-false}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_FROM: ${SMTP_FROM:-no-reply@logitrack.invalid}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_AUTH: ${SMTP_AUTH:-false}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+      SMTP_CONNECTION_TIMEOUT_MS: ${SMTP_CONNECTION_TIMEOUT_MS:-3000}
+      SMTP_READ_TIMEOUT_MS: ${SMTP_READ_TIMEOUT_MS:-5000}
+      SMTP_WRITE_TIMEOUT_MS: ${SMTP_WRITE_TIMEOUT_MS:-5000}
+      MAIL_POLL_DELAY_MS: ${MAIL_POLL_DELAY_MS:-5000}
+    volumes:
+      - "${S4_KEY_DIR:?Set S4_KEY_DIR}/private.pem:/run/secrets/jwt-private.pem:ro"
+      - "${S4_KEY_DIR:?Set S4_KEY_DIR}/public.pem:/run/secrets/jwt-public.pem:ro"
+    networks:
+      - logitrack-net
+      - smtp-net
+
+  shipment-service:
+    image: logitrack-s4/shipment-service:local
+    build: .
+    environment:
+      <<: *rabbit
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      EUREKA_INSTANCE_HOSTNAME: shipment-service
+      SPRING_RABBITMQ_USERNAME: ${SHIPMENT_RABBITMQ_USERNAME:-shipment}
+      SPRING_RABBITMQ_PASSWORD: ${SHIPMENT_RABBITMQ_PASSWORD:?Set Shipment RabbitMQ password}
+    volumes:
+      - "${S4_KEY_DIR:?Set S4_KEY_DIR}/public.pem:/run/secrets/jwt-public.pem:ro"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - logitrack-net
+      - broker-net
+
+  courier-service:
+    image: logitrack-s4/courier-service:local
+    build: ../courier-service
+    environment:
+      <<: *rabbit
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      EUREKA_INSTANCE_HOSTNAME: courier-service
+      SPRING_RABBITMQ_USERNAME: ${COURIER_RABBITMQ_USERNAME:-courier}
+      SPRING_RABBITMQ_PASSWORD: ${COURIER_RABBITMQ_PASSWORD:?Set Courier RabbitMQ password}
+    volumes:
+      - "${S4_KEY_DIR:?Set S4_KEY_DIR}/public.pem:/run/secrets/jwt-public.pem:ro"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - logitrack-net
+      - broker-net
+
+  rabbitmq:
+    image: rabbitmq:4-alpine
+    hostname: rabbitmq
+    mem_limit: 768m
+    volumes:
+      - rabbit_s4_data:/var/lib/rabbitmq
+      - ./docker/rabbitmq-sprint4.conf:/etc/rabbitmq/conf.d/20-logitrack.conf:ro
+      - "${S4_RABBIT_DEFINITIONS:?Set S4_RABBIT_DEFINITIONS}:/etc/rabbitmq/logitrack-definitions.json:ro"
+    healthcheck:
+      test: [CMD, nc, -z, 127.0.0.1, '5672']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks:
+      - broker-net
+
+  payment-db:
+    image: mysql:8.4
+    mem_limit: 768m
+    environment:
+      MYSQL_DATABASE: logitrack_payment
+      MYSQL_USER: ${PAYMENT_DB_USERNAME:-payment}
+      MYSQL_PASSWORD: ${PAYMENT_DB_PASSWORD:?Set Payment database password}
+      MYSQL_ROOT_PASSWORD: ${PAYMENT_DB_ROOT_PASSWORD:?Set Payment database root password}
+    volumes:
+      - payment_db_data:/var/lib/mysql
+    healthcheck:
+      test: [CMD-SHELL, 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h127.0.0.1 -u "$$MYSQL_USER" "$$MYSQL_DATABASE" -e "SELECT 1"']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks:
+      - payment-db-net
+
+  payment-service:
+    image: logitrack-s4/payment-service:local
+    build: ../payment-service
+    mem_limit: 768m
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_SERVER_URL: http://eureka-server:8065/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      EUREKA_INSTANCE_HOSTNAME: payment-service
+      DB_URL: jdbc:mysql://payment-db:3306/logitrack_payment?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true
+      DB_USERNAME: ${PAYMENT_DB_USERNAME:-payment}
+      DB_PASSWORD: ${PAYMENT_DB_PASSWORD:?Set Payment database password}
+      JWT_PUBLIC_KEY_LOCATION: file:/run/secrets/jwt-public.pem
+      MP_ENV: ${MP_ENV:-TEST}
+      MP_ADAPTER: ${MP_ADAPTER:-FAKE}
+      MP_TEST_CREDENTIALS_CONFIRMED: ${MP_TEST_CREDENTIALS_CONFIRMED:-false}
+      MP_ACCESS_TOKEN_TEST: ${MP_ACCESS_TOKEN_TEST:-}
+      MP_WEBHOOK_SECRET_TEST: ${MP_WEBHOOK_SECRET_TEST:-}
+      MP_WEBHOOK_PUBLIC_URL: ${MP_WEBHOOK_PUBLIC_URL:-}
+      MP_RETURN_BASE_URL: ${MP_RETURN_BASE_URL:-http://localhost:5173}
+      MP_TEST_BUYER_EMAIL: ${MP_TEST_BUYER_EMAIL:-}
+      MP_TEST_SELLER_ID: ${MP_TEST_SELLER_ID:-}
+      MP_TEST_APPLICATION_ID: ${MP_TEST_APPLICATION_ID:-}
+      TEST_QUOTE_AMOUNT_ARS: ${TEST_QUOTE_AMOUNT_ARS:-3500.00}
+      TEST_QUOTE_TTL_SECONDS: ${TEST_QUOTE_TTL_SECONDS:-1800}
+    volumes:
+      - "${S4_KEY_DIR:?Set S4_KEY_DIR}/public.pem:/run/secrets/jwt-public.pem:ro"
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://localhost:8084/actuator/health]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    depends_on:
+      config-server:
+        condition: service_healthy
+      payment-db:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - logitrack-net
+      - payment-db-net
+
+  mailpit:
+    image: axllent/mailpit:v1.27.4
+    profiles: [dev, test]
+    user: '65532:65532'
+    mem_limit: 128m
+    ports:
+      - '127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025'
+    healthcheck:
+      test: [CMD, /mailpit, readyz]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks:
+      - smtp-net
+      - mailpit-ui-net
+
+networks:
+  broker-net:
+    internal: true
+  payment-db-net:
+    internal: true
+  smtp-net:
+    internal: true
+  mailpit-ui-net:
+    driver: bridge
+
+volumes:
+  rabbit_s4_data:
+  payment_db_data:
