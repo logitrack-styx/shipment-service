@@ -35,6 +35,9 @@ class WebMvcSliceSmokeTest {
     @MockitoBean
     private AsignacionService asignacionService;
 
+    @MockitoBean
+    private com.logitrack.shipment.service.impl.AssignmentRequestService assignmentRequestService;
+
     /**
      * Si el contexto web carga correctamente, la prueba pasa.
      */

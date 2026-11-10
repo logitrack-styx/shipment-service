@@ -51,7 +51,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * las firmas, los claims y las respuestas 401/403 atraviesan la configuración
  * de producción. No necesita security-service ni material criptográfico real.</p>
  */
-@WebMvcTest(EnvioController.class)
+@WebMvcTest({EnvioController.class, com.logitrack.shipment.controller.AssignmentRequestController.class})
 @Import(SecurityConfig.class)
 @ActiveProfiles("test")
 class SecurityContractTest {
@@ -64,6 +64,34 @@ class SecurityContractTest {
 
     @MockitoBean
     private EnvioService envioService;
+
+    @MockitoBean
+    private com.logitrack.shipment.service.impl.AssignmentRequestService requests;
+
+    @Test
+    void assignmentRequestsRequireAdminAndReturnAccepted() throws Exception {
+        var shipment = UUID.randomUUID();
+        var courier = UUID.randomUUID();
+        var key = UUID.randomUUID();
+        var operation = new com.logitrack.shipment.dto.response.AssignmentRequestResponse(
+                UUID.randomUUID(), shipment, courier,
+                com.logitrack.shipment.dto.response.AssignmentRequestResponse.Status.PENDING,
+                Instant.now(), null);
+        String path = "/envios/" + shipment + "/assignment-requests";
+        org.mockito.Mockito.when(requests.submit(shipment, courier, key)).thenReturn(operation);
+        org.mockito.Mockito.when(requests.get(shipment, operation.operationId())).thenReturn(operation);
+
+        mockMvc.perform(get(path + "/" + operation.operationId())).andExpect(status().isUnauthorized());
+        mockMvc.perform(get(path + "/" + operation.operationId()).header("Authorization", "Bearer "
+                + token(b -> b.claim("roles", List.of("CLIENTE"))))).andExpect(status().isForbidden());
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post(path)
+                .header("Authorization", "Bearer " + token(b -> {})).header("Idempotency-Key", key)
+                .contentType("application/json").content("{\"repartidorId\":\"" + courier + "\"}"))
+                .andExpect(status().isAccepted()).andExpect(jsonPath("$.status").value("PENDING"));
+        mockMvc.perform(get(path + "/" + operation.operationId())
+                .header("Authorization", "Bearer " + token(b -> {})))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.operationId").value(operation.operationId().toString()));
+    }
 
     /**
      * Configura únicamente la clave pública generada para esta suite.
