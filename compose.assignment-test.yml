@@ -19,7 +19,9 @@ x-app: &app
 
 services:
   rabbit:
-    image: rabbitmq:4-alpine
+    image: rabbitmq:4-management-alpine
+    ports:
+      - '127.0.0.1::15672'
     environment:
       RABBITMQ_DEFAULT_USER: assignment_test
       RABBITMQ_DEFAULT_PASS: ${ASSIGNMENT_TEST_PASSWORD:?Set a disposable password}
@@ -62,6 +64,7 @@ services:
       <<: *app
       DB_URL: jdbc:mysql://courier-db:3306/courier_test
       LOGITRACK_CLIENTS_SECURITY_BASE_URL: http://127.0.0.1:9
+      COURIER_ASSIGNMENT_POLL_DELAY_MS: ${COURIER_TEST_POLL_DELAY_MS:-1000}
     volumes:
       - '${ASSIGNMENT_TEST_KEY_DIR:?Set the public key directory}:/run/keys:ro'
     depends_on:
