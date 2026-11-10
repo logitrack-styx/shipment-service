@@ -36,7 +36,8 @@ import org.testcontainers.mysql.MySQLContainer;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({JpaAuditingConfig.class, com.logitrack.shipment.service.impl.AssignmentRequestService.class})
+@Import({JpaAuditingConfig.class, com.logitrack.shipment.service.impl.AssignmentRequestService.class,
+        com.logitrack.shipment.service.impl.AssignmentResultService.class})
 @Testcontainers
 class EnvioRepositoryTest {
 
@@ -65,6 +66,26 @@ class EnvioRepositoryTest {
 
     @Autowired
     private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    @Autowired
+    private com.logitrack.shipment.service.impl.AssignmentResultService results;
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void resultCannotOverwriteLegacyAssignmentOrReopenTerminalOperation() {
+        var id = envio.getId();
+        var operation = requests.submit(id, repartidorId, UUID.randomUUID());
+        var legacyCourier = UUID.randomUUID();
+        assertEquals(1, envioRepository.asignarRepartidorSiPendienteSinAsignacion(id, legacyCourier));
+        var event = new com.logitrack.shipment.event.AssignmentEvent(
+                UUID.randomUUID(), operation.operationId(), Instant.now(), 1, id, repartidorId);
+        results.apply(event, true);
+        results.apply(event, true);
+        assertEquals("REJECTED", requests.get(id, operation.operationId()).status().name());
+        assertEquals(legacyCourier, envioRepository.findById(id).orElseThrow().getRepartidorId());
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM processed_assignment_results WHERE operation_id = ?",
+                Integer.class, operation.operationId().toString()));
+    }
 
     @Test
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
