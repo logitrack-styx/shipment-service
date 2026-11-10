@@ -36,7 +36,7 @@ import org.testcontainers.mysql.MySQLContainer;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(JpaAuditingConfig.class)
+@Import({JpaAuditingConfig.class, com.logitrack.shipment.service.impl.AssignmentRequestService.class})
 @Testcontainers
 class EnvioRepositoryTest {
 
@@ -59,6 +59,41 @@ class EnvioRepositoryTest {
     private EnvioRepository envioRepository;
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private com.logitrack.shipment.service.impl.AssignmentRequestService requests;
+
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbc;
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void concurrentRetriesPersistOneOperationAndOneEvent() throws Exception {
+        var key = UUID.randomUUID();
+        var id = envio.getId();
+        try (var pool = Executors.newFixedThreadPool(2)) {
+            var start = new CountDownLatch(1);
+            java.util.concurrent.Callable<com.logitrack.shipment.dto.response.AssignmentRequestResponse> submit = () -> {
+                assertTrue(start.await(10, TimeUnit.SECONDS));
+                return requests.submit(id, repartidorId, key);
+            };
+            var first = pool.submit(submit);
+            var second = pool.submit(submit);
+            start.countDown();
+            var result = first.get(15, TimeUnit.SECONDS);
+            assertEquals(result, second.get(15, TimeUnit.SECONDS));
+            assertEquals(result, requests.get(id, result.operationId()));
+            assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM outbox_events WHERE operation_id = ?",
+                    Integer.class, result.operationId().toString()));
+            org.junit.jupiter.api.Assertions.assertThrows(
+                    com.logitrack.shipment.exception.TransicionEstadoInvalidaException.class,
+                    () -> requests.submit(id, UUID.randomUUID(), key));
+            org.junit.jupiter.api.Assertions.assertThrows(
+                    com.logitrack.shipment.exception.TransicionEstadoInvalidaException.class,
+                    () -> requests.submit(id, repartidorId, UUID.randomUUID()));
+            assertNull(envioRepository.findById(id).orElseThrow().getRepartidorId());
+        }
+    }
 
     @Autowired
     private jakarta.persistence.EntityManager entityManager;

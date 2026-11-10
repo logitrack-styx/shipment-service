@@ -21,6 +21,14 @@ public interface EnvioRepository extends JpaRepository<Envio, UUID> {
 
     Optional<Envio> findByCodigoSeguimiento(UUID codigoSeguimiento);
 
+    /**
+     * Serializes assignment requests for an existing shipment inside a transaction.
+     * @author dominox45
+     */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select e from Envio e where e.id = :id")
+    Optional<Envio> findForAssignment(@Param("id") UUID id);
+
     default List<Envio> findByEstado(EstadoEnvio estado) {
         return findByEstado(estado, com.logitrack.shipment.config.BoundedPage.of(0, 20)).getContent();
     }
