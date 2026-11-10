@@ -39,6 +39,10 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
         <!-- API REST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
