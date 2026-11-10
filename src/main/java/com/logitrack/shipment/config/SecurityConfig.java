@@ -95,6 +95,8 @@ public class SecurityConfig {
                                 org.springframework.http.HttpMethod.PATCH,
                                 "/envios/*/estado"
                         ).hasAnyRole("ADMIN", "REPARTIDOR")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/envios/mine").hasRole("CLIENTE")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/envios/assigned-to-me").hasRole("REPARTIDOR")
                         .requestMatchers("/envios/**")
                         .hasAnyRole("ADMIN", "CLIENTE", "REPARTIDOR")
                         .anyRequest().authenticated())

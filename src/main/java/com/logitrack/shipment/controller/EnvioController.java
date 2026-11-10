@@ -57,7 +57,38 @@ public class EnvioController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal Jwt jwt) {
-        var result = envioService.listar(estado, jwt, page, size);
+        return pagina(envioService.listar(estado, jwt, page, size));
+    }
+
+    /**
+     * Returns the authenticated customer's shipments.
+     * @author dominox45
+     */
+    @GetMapping("/mine")
+    @Operation(operationId = "shipmentsMine", summary = "Listar los envíos del cliente autenticado")
+    public ResponseEntity<List<EnvioResponse>> propios(
+            @RequestParam(required = false) EstadoEnvio estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal Jwt jwt) {
+        return pagina(envioService.listarPropios(estado, jwt, page, size));
+    }
+
+    /**
+     * Returns shipments assigned to the authenticated courier.
+     * @author dominox45
+     */
+    @GetMapping("/assigned-to-me")
+    @Operation(operationId = "shipmentsAssignedToMe", summary = "Listar los envíos asignados al repartidor autenticado")
+    public ResponseEntity<List<EnvioResponse>> asignados(
+            @RequestParam(required = false) EstadoEnvio estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal Jwt jwt) {
+        return pagina(envioService.listarAsignados(estado, jwt, page, size));
+    }
+
+    private ResponseEntity<List<EnvioResponse>> pagina(org.springframework.data.domain.Page<EnvioResponse> result) {
         return ResponseEntity.ok().header("X-Total-Count", Long.toString(result.getTotalElements()))
                 .header("X-Total-Pages", Integer.toString(result.getTotalPages())).body(result.getContent());
     }
