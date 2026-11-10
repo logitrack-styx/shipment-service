@@ -22,7 +22,7 @@ foreach ($line in Get-Content -LiteralPath $envFile) {
     if ($line -match '^([A-Z][A-Z0-9_]*)=') {
         $name = $Matches[1]
         $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
-        [Environment]::SetEnvironmentVariable($name, $null, 'Process')
+        Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
     }
 }
 $root = Split-Path $PSScriptRoot
@@ -151,7 +151,11 @@ try {
 } finally {
     try { Invoke-Compose down -v } finally {
         foreach ($name in $savedEnvironment.Keys) {
-            [Environment]::SetEnvironmentVariable($name, $savedEnvironment[$name], 'Process')
+            if ($null -eq $savedEnvironment[$name]) {
+                Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
+            } else {
+                Set-Item -LiteralPath "Env:$name" -Value $savedEnvironment[$name]
+            }
         }
         foreach ($file in '.env', 'private.pem', 'public.pem', 'rabbit-definitions.json') {
             Remove-Item -LiteralPath (Join-Path $directory $file) -ErrorAction SilentlyContinue
